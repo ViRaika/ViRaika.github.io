@@ -1,10 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Name — Portfolio</title>
-  <meta name="description" content="Student portfolio — aerospace, statistics, and things I found out too late." />
+  <title>Vishal Raika — Portfolio</title>
+  <meta name="description" content="IISc aerospace student exploring probabilistic systems, machine learning, and computational thinking." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
@@ -16,12 +17,11 @@
 
   <!-- ===== NAV ===== -->
   <nav>
-    <div class="nav-logo" id="nav-logo">YN<span>.dev</span></div>
+    <div class="nav-logo" id="nav-logo">VR<span>.dev</span></div>
     <ul class="nav-links">
       <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
-      <li><a href="#" class="nav-link" data-page="blog">Blog</a></li>
+      <li><a href="#" class="nav-link" data-page="projects">Projects</a></li>
       <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
-      <li><a href="#" class="nav-link wip" data-page="projects">Projects</a></li>
       <li><a href="#" class="nav-link wip" data-page="resume">Résumé</a></li>
     </ul>
   </nav>
@@ -32,50 +32,33 @@
     <!-- HOME -->
     <section id="page-home" class="page active">
       <div class="home-hero">
-        <p class="home-eyebrow">// student &nbsp;·&nbsp; builder &nbsp;·&nbsp; overthinker</p>
+        <p class="home-eyebrow">// aerospace &nbsp;·&nbsp; probability &nbsp;·&nbsp; machine learning</p>
         <h1 class="home-name">
-          Your<br /><span class="accent">Name</span>
+          Vishal<br /><span class="accent">Raika</span>
         </h1>
         <p class="home-desc">
-          Engineering student fascinated by <em>aerospace</em>, <em>statistics</em>,
-          and whatever rabbit hole I fell into at 2am.
-          This is my corner of the internet — unfiltered.
+          I study aerospace engineering at IISc and spend most of my time
+          thinking about probability, machine learning, and systems that are
+          harder to model than they first appear.
+          This site is a small collection of projects, notes, and things I’m
+          building or learning.
         </p>
         <div class="home-actions">
-          <button class="btn btn-primary" data-navigate="blog">Read the Blog</button>
+          <button class="btn btn-primary" data-navigate="projects">View Projects</button>
           <button class="btn btn-ghost" data-navigate="contact">Say Hello</button>
         </div>
         <div class="home-status">
           <span class="status-dot"></span>
-          Portfolio live &nbsp;·&nbsp; Projects &amp; Résumé coming soon
+          Portfolio live &nbsp;·&nbsp; Building projects and research logs
         </div>
       </div>
-    </section>
-
-    <!-- BLOG -->
-    <section id="page-blog" class="page">
-      <div class="page-header">
-        <h2 class="section-title">Blog</h2>
-        <p class="section-sub">// thoughts, learnings, and things I found out too late</p>
-      </div>
-
-      <div class="tag-bar">
-        <span class="tag-bar-label">Filter</span>
-        <div class="tag-filters" id="tag-filters"></div>
-      </div>
-
-      <div id="blog-list-view" class="blog-list-view">
-        <div class="blog-list" id="post-list"></div>
-      </div>
-
-      <div id="blog-post-view" class="blog-post-view"></div>
     </section>
 
     <!-- CONTACT -->
     <section id="page-contact" class="page">
       <div class="page-header">
         <h2 class="section-title">Contact</h2>
-        <p class="section-sub">// let's talk. or don't. but do.</p>
+        <p class="section-sub">// open to interesting conversations and collaborations</p>
       </div>
 
       <div class="contact-grid">
@@ -83,22 +66,18 @@
         <div class="contact-info">
           <h3 class="contact-info-title">// reach out</h3>
           <p class="contact-info-body">
-            I'm a student so I check email obsessively.
-            Whether it's about projects, collabs, or you just want to
-            argue about p-values — I'm in.
+            Interested in aerospace, ML, probabilistic systems, research,
+            or just discussing difficult ideas late at night.
+            Feel free to reach out.
           </p>
           <div class="contact-links">
-            <a href="mailto:your@email.com" class="contact-link-item">
+            <a href="mailto:contact.viraika@gmail.com" class="contact-link-item">
               <span class="contact-link-label">Email</span>
-              <span>your@email.com</span>
+              <span>contact.viraika@gmail.com</span>
             </a>
-            <a href="https://github.com/yourusername" target="_blank" rel="noopener" class="contact-link-item">
-              <span class="contact-link-label">GitHub</span>
-              <span>github.com/yourusername</span>
-            </a>
-            <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener" class="contact-link-item">
+            <a href="https://linkedin.com/in/vishal-raika/" target="_blank" rel="noopener" class="contact-link-item">
               <span class="contact-link-label">LinkedIn</span>
-              <span>linkedin.com/in/yourprofile</span>
+              <span>linkedin.com/in/vishal-raika</span>
             </a>
           </div>
         </div>
@@ -140,8 +119,8 @@
         <p class="wip-code">// status: building</p>
         <h2 class="wip-title">Projects<br />Coming<br />Soon</h2>
         <div class="wip-progress"><div class="wip-bar"></div></div>
-        <p class="wip-sub">Working on something worth showing.<br />Check back in a bit.</p>
-        <button class="btn btn-ghost" data-navigate="blog">Read the blog while you wait →</button>
+        <p class="wip-sub">Working on ML, aerospace, and probabilistic systems projects.<br />Check back soon.</p>
+        <button class="btn btn-ghost" data-navigate="contact">Get in touch →</button>
       </div>
     </section>
 
@@ -151,7 +130,7 @@
         <p class="wip-code">// status: compiling</p>
         <h2 class="wip-title">Résumé<br />In<br />Progress</h2>
         <div class="wip-progress"><div class="wip-bar"></div></div>
-        <p class="wip-sub">Formatting a clean version.<br />Will be up soon.</p>
+        <p class="wip-sub">A cleaner academic and technical résumé will be uploaded soon.</p>
         <button class="btn btn-ghost" data-navigate="contact">Reach out in the meantime →</button>
       </div>
     </section>
@@ -161,3 +140,5 @@
   <script src="app.js"></script>
 </body>
 </html>
+```
+
