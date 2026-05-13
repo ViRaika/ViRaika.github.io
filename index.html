@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Name — Portfolio</title>
+  <meta name="description" content="Student portfolio — aerospace, statistics, and things I found out too late." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="cursor-glow"></div>
+
+  <!-- ===== NAV ===== -->
+  <nav>
+    <div class="nav-logo" id="nav-logo">YN<span>.dev</span></div>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+      <li><a href="#" class="nav-link" data-page="blog">Blog</a></li>
+      <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
+      <li><a href="#" class="nav-link wip" data-page="projects">Projects</a></li>
+      <li><a href="#" class="nav-link wip" data-page="resume">Résumé</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===== PAGES ===== -->
+  <main>
+
+    <!-- HOME -->
+    <section id="page-home" class="page active">
+      <div class="home-hero">
+        <p class="home-eyebrow">// student &nbsp;·&nbsp; builder &nbsp;·&nbsp; overthinker</p>
+        <h1 class="home-name">
+          Your<br /><span class="accent">Name</span>
+        </h1>
+        <p class="home-desc">
+          Engineering student fascinated by <em>aerospace</em>, <em>statistics</em>,
+          and whatever rabbit hole I fell into at 2am.
+          This is my corner of the internet — unfiltered.
+        </p>
+        <div class="home-actions">
+          <button class="btn btn-primary" data-navigate="blog">Read the Blog</button>
+          <button class="btn btn-ghost" data-navigate="contact">Say Hello</button>
+        </div>
+        <div class="home-status">
+          <span class="status-dot"></span>
+          Portfolio live &nbsp;·&nbsp; Projects &amp; Résumé coming soon
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOG -->
+    <section id="page-blog" class="page">
+      <div class="page-header">
+        <h2 class="section-title">Blog</h2>
+        <p class="section-sub">// thoughts, learnings, and things I found out too late</p>
+      </div>
+
+      <div class="tag-bar">
+        <span class="tag-bar-label">Filter</span>
+        <div class="tag-filters" id="tag-filters"></div>
+      </div>
+
+      <div id="blog-list-view" class="blog-list-view">
+        <div class="blog-list" id="post-list"></div>
+      </div>
+
+      <div id="blog-post-view" class="blog-post-view"></div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="page-contact" class="page">
+      <div class="page-header">
+        <h2 class="section-title">Contact</h2>
+        <p class="section-sub">// let's talk. or don't. but do.</p>
+      </div>
+
+      <div class="contact-grid">
+
+        <div class="contact-info">
+          <h3 class="contact-info-title">// reach out</h3>
+          <p class="contact-info-body">
+            I'm a student so I check email obsessively.
+            Whether it's about projects, collabs, or you just want to
+            argue about p-values — I'm in.
+          </p>
+          <div class="contact-links">
+            <a href="mailto:your@email.com" class="contact-link-item">
+              <span class="contact-link-label">Email</span>
+              <span>your@email.com</span>
+            </a>
+            <a href="https://github.com/yourusername" target="_blank" rel="noopener" class="contact-link-item">
+              <span class="contact-link-label">GitHub</span>
+              <span>github.com/yourusername</span>
+            </a>
+            <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener" class="contact-link-item">
+              <span class="contact-link-label">LinkedIn</span>
+              <span>linkedin.com/in/yourprofile</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="contact-form-wrap">
+          <form id="contact-form" class="contact-form" novalidate>
+            <div class="form-field">
+              <label for="cf-name">Name</label>
+              <input id="cf-name" type="text" autocomplete="name" placeholder="Your name" required />
+            </div>
+            <div class="form-field">
+              <label for="cf-email">Email</label>
+              <input id="cf-email" type="email" autocomplete="email" placeholder="your@email.com" required />
+            </div>
+            <div class="form-field">
+              <label for="cf-msg">Message</label>
+              <textarea id="cf-msg" placeholder="What's on your mind..." required></textarea>
+            </div>
+            <div class="form-submit">
+              <button type="submit" class="btn-submit" id="submit-btn">
+                <span id="submit-text">Send Message</span>
+                <span class="btn-arrow">→</span>
+              </button>
+            </div>
+          </form>
+          <div id="form-success" class="form-success" aria-live="polite">
+            <div class="success-icon">✓</div>
+            <h3>// Message Received</h3>
+            <p>Thanks for reaching out. I'll get back to you soon.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PROJECTS WIP -->
+    <section id="page-projects" class="page">
+      <div class="wip-container">
+        <p class="wip-code">// status: building</p>
+        <h2 class="wip-title">Projects<br />Coming<br />Soon</h2>
+        <div class="wip-progress"><div class="wip-bar"></div></div>
+        <p class="wip-sub">Working on something worth showing.<br />Check back in a bit.</p>
+        <button class="btn btn-ghost" data-navigate="blog">Read the blog while you wait →</button>
+      </div>
+    </section>
+
+    <!-- RESUME WIP -->
+    <section id="page-resume" class="page">
+      <div class="wip-container">
+        <p class="wip-code">// status: compiling</p>
+        <h2 class="wip-title">Résumé<br />In<br />Progress</h2>
+        <div class="wip-progress"><div class="wip-bar"></div></div>
+        <p class="wip-sub">Formatting a clean version.<br />Will be up soon.</p>
+        <button class="btn btn-ghost" data-navigate="contact">Reach out in the meantime →</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
