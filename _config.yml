@@ -1,0 +1,19 @@
+title: Vishal Raika
+description: IISc aerospace student exploring probabilistic systems, machine learning, and computational thinking.
+url: "https://viraika.github.io"
+baseurl: ""
+
+permalink: /blog/:slug/
+
+markdown: kramdown
+kramdown:
+  math_engine: mathjax
+  input: GFM
+
+plugins:
+  - jekyll-feed
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md

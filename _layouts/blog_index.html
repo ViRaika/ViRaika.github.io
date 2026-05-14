@@ -1,0 +1,43 @@
+---
+layout: default
+---
+<section class="page active">
+  <div class="page-header">
+    <h2 class="section-title">Blog</h2>
+    <p class="section-sub">// questions, mistakes, and things worth understanding twice</p>
+  </div>
+
+  {% assign sorted_posts = site.posts | sort: 'date' | reverse %}
+  {% for post in sorted_posts %}
+  <article class="blog-card" data-expanded="{% if forloop.first %}true{% else %}false{% endif %}">
+    <div class="blog-card-header" onclick="toggleBlog(this)">
+      <div class="blog-card-meta-row">
+        {% if post.tags %}
+          <span class="blog-tag">{{ post.tags | first }}</span>
+        {% endif %}
+        <span class="blog-date">{{ post.date | date: "%b %d, %Y" }}</span>
+      </div>
+      <div class="blog-card-title-row">
+        <h2 class="blog-title">{{ post.title }}</h2>
+        <button class="blog-toggle-btn" aria-label="Toggle post">
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+      <p class="blog-preview">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+    </div>
+    <div class="blog-content">
+      {{ post.content }}
+    </div>
+  </article>
+  {% endfor %}
+
+  {% if site.posts.size == 0 %}
+  <div class="wip-container">
+    <p class="wip-code">// status: writing</p>
+    <h2 class="section-title">No posts yet</h2>
+    <p class="wip-sub">Add markdown files to the <code>_posts/</code> folder to get started.</p>
+  </div>
+  {% endif %}
+</section>

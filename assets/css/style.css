@@ -457,7 +457,3 @@ main {
   .blog-card-header { padding: 1.25rem; }
   .blog-content { padding: 0 1.25rem 1.25rem; padding-top: 1.25rem; }
 }
-
-#rocket-canvas {
-  image-rendering: pixelated;
-}
