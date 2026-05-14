@@ -6,36 +6,140 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vishal Raika — Portfolio</title>
   <meta name="description" content="IISc aerospace student exploring probabilistic systems, machine learning, and computational thinking." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- MathJax for LaTeX -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    async>
+  </script>
+
   <link rel="stylesheet" href="style.css" />
+
+  <style>
+    :root {
+      --bg: #F6F4E8;
+      --card: #E5EEE4;
+      --accent: #C0E1D2;
+      --text: #2B2B2B;
+      --muted: #6B6B6B;
+      --highlight: #DC9B9B;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    nav {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .nav-logo,
+    .section-title,
+    .home-name {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .accent {
+      color: var(--highlight);
+    }
+
+    .home-desc,
+    .section-sub,
+    .contact-info-body,
+    .blog-preview {
+      color: var(--muted);
+    }
+
+    .btn-primary {
+      background: var(--highlight);
+      color: white;
+      border: none;
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--highlight);
+      color: var(--highlight);
+      background: transparent;
+    }
+
+    .blog-card,
+    .contact-info,
+    .contact-form-wrap,
+    .wip-container {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 2rem;
+      margin-top: 2rem;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .blog-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .blog-meta {
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .blog-content p {
+      line-height: 1.8;
+      margin-bottom: 1.2rem;
+    }
+
+    .latex-block {
+      background: rgba(255,255,255,0.65);
+      padding: 1rem;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+  </style>
 </head>
 <body>
-
-  <div id="cursor-glow"></div>
 
   <!-- ===== NAV ===== -->
   <nav>
     <div class="nav-logo" id="nav-logo">VR<span>.dev</span></div>
     <ul class="nav-links">
       <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+      <li><a href="#" class="nav-link" data-page="blog">Blog</a></li>
       <li><a href="#" class="nav-link" data-page="projects">Projects</a></li>
       <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
-      <li><a href="#" class="nav-link wip" data-page="resume">Résumé</a></li>
+      <li><a href="#" class="nav-link" data-page="resume">Résumé</a></li>
     </ul>
   </nav>
 
-  <!-- ===== PAGES ===== -->
   <main>
 
     <!-- HOME -->
     <section id="page-home" class="page active">
       <div class="home-hero">
-        <p class="home-eyebrow">// aerospace &nbsp;·&nbsp; probability &nbsp;·&nbsp; machine learning</p>
+        <p class="home-eyebrow">// aerospace · probability · machine learning</p>
+
         <h1 class="home-name">
           Vishal<br /><span class="accent">Raika</span>
         </h1>
+
         <p class="home-desc">
           I study aerospace engineering at IISc and spend most of my time
           thinking about probability, machine learning, and systems that are
@@ -43,14 +147,129 @@
           This site is a small collection of projects, notes, and things I’m
           building or learning.
         </p>
+
         <div class="home-actions">
-          <button class="btn btn-primary" data-navigate="projects">View Projects</button>
+          <button class="btn btn-primary" data-navigate="blog">Read Notes</button>
           <button class="btn btn-ghost" data-navigate="contact">Say Hello</button>
         </div>
-        <div class="home-status">
-          <span class="status-dot"></span>
-          Portfolio live &nbsp;·&nbsp; Building projects and research logs
+      </div>
+    </section>
+
+    <!-- BLOG -->
+    <section id="page-blog" class="page">
+      <div class="page-header">
+        <h2 class="section-title">Blog</h2>
+        <p class="section-sub">// questions, mistakes, and things worth understanding twice</p>
+      </div>
+
+      <div class="blog-card">
+
+        <div class="blog-meta">
+          Probability · First Post
         </div>
+
+        <h2 class="blog-title">
+          A Probability Question That Broke My Intuition
+        </h2>
+
+        <div class="blog-content">
+
+          <p>
+            I encountered a probability problem that looked straightforward at first,
+            but the deeper I went, the more I realized I was mixing up conditional reasoning,
+            independence, and counting logic.
+          </p>
+
+          <p>
+            The question was:
+          </p>
+
+          <div class="latex-block">
+            $$
+            P(\text{both cards are aces} \, | \, \text{at least one card is Ace of Spades})
+            $$
+          </div>
+
+          <p>
+            My first instinct was to think:
+          </p>
+
+          <div class="latex-block">
+            $$
+            \frac{3}{51}
+            $$
+          </div>
+
+          <p>
+            because once one card is fixed as the Ace of Spades,
+            there are 3 remaining aces among 51 remaining cards.
+          </p>
+
+          <p>
+            But the actual structure of the condition matters.
+            We are not conditioning on drawing the Ace of Spades first.
+            We are conditioning on the event that among the two cards,
+            at least one is the Ace of Spades.
+          </p>
+
+          <p>
+            So we instead count valid outcomes.
+          </p>
+
+          <div class="latex-block">
+            $$
+            \text{Valid outcomes} = 51
+            $$
+          </div>
+
+          <p>
+            because the Ace of Spades can pair with any of the remaining 51 cards.
+          </p>
+
+          <p>
+            Favorable outcomes are the cases where the second card is also an ace:
+          </p>
+
+          <div class="latex-block">
+            $$
+            3
+            $$
+          </div>
+
+          <p>
+            Therefore:
+          </p>
+
+          <div class="latex-block">
+            $$
+            P = \frac{3}{51} = \frac{1}{17}
+            $$
+          </div>
+
+          <p>
+            The interesting part wasn't the answer.
+            It was realizing how easy it is to accidentally change the conditioning event
+            into a sequential process in your head.
+          </p>
+
+          <p>
+            I’m beginning to notice that many probability mistakes are really mistakes about
+            what information is actually being conditioned on.
+          </p>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="page-projects" class="page">
+      <div class="wip-container">
+        <p class="wip-code">// status: building</p>
+        <h2 class="section-title">Projects Coming Soon</h2>
+        <p class="wip-sub">
+          Currently working through ML, aerospace systems,
+          probability intuition, and computational experiments.
+        </p>
       </div>
     </section>
 
@@ -65,73 +284,30 @@
 
         <div class="contact-info">
           <h3 class="contact-info-title">// reach out</h3>
-          <p class="contact-info-body">
-            Interested in aerospace, ML, probabilistic systems, research,
-            or just discussing difficult ideas late at night.
-            Feel free to reach out.
-          </p>
+
           <div class="contact-links">
             <a href="mailto:contact.viraika@gmail.com" class="contact-link-item">
               <span class="contact-link-label">Email</span>
               <span>contact.viraika@gmail.com</span>
             </a>
+
             <a href="https://linkedin.com/in/vishal-raika/" target="_blank" rel="noopener" class="contact-link-item">
               <span class="contact-link-label">LinkedIn</span>
               <span>linkedin.com/in/vishal-raika</span>
             </a>
           </div>
         </div>
-
-        <div class="contact-form-wrap">
-          <form id="contact-form" class="contact-form" novalidate>
-            <div class="form-field">
-              <label for="cf-name">Name</label>
-              <input id="cf-name" type="text" autocomplete="name" placeholder="Your name" required />
-            </div>
-            <div class="form-field">
-              <label for="cf-email">Email</label>
-              <input id="cf-email" type="email" autocomplete="email" placeholder="your@email.com" required />
-            </div>
-            <div class="form-field">
-              <label for="cf-msg">Message</label>
-              <textarea id="cf-msg" placeholder="What's on your mind..." required></textarea>
-            </div>
-            <div class="form-submit">
-              <button type="submit" class="btn-submit" id="submit-btn">
-                <span id="submit-text">Send Message</span>
-                <span class="btn-arrow">→</span>
-              </button>
-            </div>
-          </form>
-          <div id="form-success" class="form-success" aria-live="polite">
-            <div class="success-icon">✓</div>
-            <h3>// Message Received</h3>
-            <p>Thanks for reaching out. I'll get back to you soon.</p>
-          </div>
-        </div>
-
       </div>
     </section>
 
-    <!-- PROJECTS WIP -->
-    <section id="page-projects" class="page">
-      <div class="wip-container">
-        <p class="wip-code">// status: building</p>
-        <h2 class="wip-title">Projects<br />Coming<br />Soon</h2>
-        <div class="wip-progress"><div class="wip-bar"></div></div>
-        <p class="wip-sub">Working on ML, aerospace, and probabilistic systems projects.<br />Check back soon.</p>
-        <button class="btn btn-ghost" data-navigate="contact">Get in touch →</button>
-      </div>
-    </section>
-
-    <!-- RESUME WIP -->
+    <!-- RESUME -->
     <section id="page-resume" class="page">
       <div class="wip-container">
         <p class="wip-code">// status: compiling</p>
-        <h2 class="wip-title">Résumé<br />In<br />Progress</h2>
-        <div class="wip-progress"><div class="wip-bar"></div></div>
-        <p class="wip-sub">A cleaner academic and technical résumé will be uploaded soon.</p>
-        <button class="btn btn-ghost" data-navigate="contact">Reach out in the meantime →</button>
+        <h2 class="section-title">Résumé In Progress</h2>
+        <p class="wip-sub">
+          A cleaner technical résumé and academic timeline will be uploaded soon.
+        </p>
       </div>
     </section>
 
@@ -141,4 +317,3 @@
 </body>
 </html>
 ```
-
