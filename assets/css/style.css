@@ -464,6 +464,54 @@ main {
 .back-link:hover { color: var(--accent); }
 
 /* ============================================
+   COFFEE / QR
+   ============================================ */
+.coffee-card {
+  border-style: dashed;
+}
+
+.coffee-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1.75rem;
+}
+
+.qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+#qr-canvas {
+  border-radius: 16px;
+  display: block;
+  box-shadow: 0 2px 16px rgba(42, 33, 24, 0.08);
+}
+
+.qr-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.qr-upi {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.qr-hint {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}
+
+/* ============================================
    SCROLLBAR
    ============================================ */
 ::-webkit-scrollbar { width: 6px; }

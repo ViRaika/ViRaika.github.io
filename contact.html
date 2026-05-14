@@ -8,7 +8,10 @@ permalink: /contact/
     <h2 class="section-title">Contact</h2>
     <p class="section-sub">// open to interesting conversations and collaborations</p>
   </div>
+
   <div class="contact-grid">
+
+    <!-- Reach out -->
     <div class="contact-info">
       <h3 class="contact-info-title">// reach out</h3>
       <div class="contact-links">
@@ -22,5 +25,96 @@ permalink: /contact/
         </a>
       </div>
     </div>
+
+    <!-- Coffee / UPI -->
+    <div class="contact-info coffee-card">
+      <h3 class="contact-info-title">// buy me a chai ☕</h3>
+      <p class="coffee-note">
+        If something here was useful or you just feel generous —
+        a cup of chai goes a long way at IISc.
+      </p>
+
+      <div class="qr-wrap">
+        <canvas id="qr-canvas"></canvas>
+        <div class="qr-label">
+          <span class="qr-upi">vishalraika38@okhdfcbank</span>
+          <span class="qr-hint">scan with any UPI app</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
+
+<!-- QR code library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function () {
+  // We'll draw a styled QR onto our canvas using a hidden div as intermediary
+  const UPI = 'upi://pay?pa=vishalraika38@okhdfcbank&pn=Vishal%20Raika&cu=INR';
+
+  // QRCode.js needs a div to render into, then we can style
+  const container = document.createElement('div');
+  container.style.display = 'none';
+  document.body.appendChild(container);
+
+  new QRCode(container, {
+    text: UPI,
+    width: 256,
+    height: 256,
+    colorDark: '#2A2118',
+    colorLight: '#FDFAF4',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
+
+  // Wait for QRCode to render its canvas/img
+  setTimeout(function () {
+    const sourceImg = container.querySelector('img') || container.querySelector('canvas');
+    if (!sourceImg) return;
+
+    const dest = document.getElementById('qr-canvas');
+    if (!dest) return;
+
+    const SIZE = 200;
+    const BORDER = 18;
+    const TOTAL = SIZE + BORDER * 2;
+
+    dest.width  = TOTAL;
+    dest.height = TOTAL;
+    const ctx = dest.getContext('2d');
+
+    // Background rounded rect
+    const r = 16;
+    ctx.fillStyle = '#FDFAF4';
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(TOTAL - r, 0);
+    ctx.quadraticCurveTo(TOTAL, 0, TOTAL, r);
+    ctx.lineTo(TOTAL, TOTAL - r);
+    ctx.quadraticCurveTo(TOTAL, TOTAL, TOTAL - r, TOTAL);
+    ctx.lineTo(r, TOTAL);
+    ctx.quadraticCurveTo(0, TOTAL, 0, TOTAL - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Subtle border
+    ctx.strokeStyle = '#D9CDB8';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Draw the QR image centred
+    if (sourceImg.tagName === 'IMG') {
+      sourceImg.onload = function () {
+        ctx.drawImage(sourceImg, BORDER, BORDER, SIZE, SIZE);
+      };
+      if (sourceImg.complete) ctx.drawImage(sourceImg, BORDER, BORDER, SIZE, SIZE);
+    } else {
+      ctx.drawImage(sourceImg, BORDER, BORDER, SIZE, SIZE);
+    }
+
+    document.body.removeChild(container);
+  }, 200);
+})();
+</script>
