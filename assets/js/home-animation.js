@@ -1,118 +1,54 @@
-// Soft drifting particle field for home page
-// Warm, minimal, barely-there
+// Soft animated gradient mesh for home page
+// Slow warm orbs drifting — clean, intentional
 
 (function () {
   const canvas = document.getElementById('home-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  // Warm palette — very faint
-  const COLORS = [
-    'rgba(192, 82, 42, ',   // terracotta
-    'rgba(94, 124, 94, ',   // sage
-    'rgba(180, 150, 110, ', // warm tan
-    'rgba(160, 120, 90, ',  // brown
-  ];
-
-  let W, H, particles, lines;
+  let W, H;
 
   function resize() {
     W = canvas.width  = window.innerWidth;
     H = canvas.height = window.innerHeight;
   }
 
-  // Each particle is a slow-drifting soft dot
-  function makeParticle() {
-    return {
-      x:    Math.random() * W,
-      y:    Math.random() * H,
-      r:    1.5 + Math.random() * 2.5,       // tiny radius
-      vx:   (Math.random() - 0.5) * 0.18,   // very slow
-      vy:   (Math.random() - 0.5) * 0.18,
-      base_alpha: 0.06 + Math.random() * 0.10, // very faint
-      alpha: 0,
-      alpha_target: 0,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      // breathing cycle
-      breath: Math.random() * Math.PI * 2,
-      breath_speed: 0.004 + Math.random() * 0.006,
-    };
+  // Soft warm orbs that slowly breathe and drift
+  const orbs = [
+    { x: 0.18, y: 0.28, r: 0.58, color: [220, 180, 140], phase: 0.0,  sx: 0.00014, sy: 0.00011, ox: 0.13, oy: 0.11 },
+    { x: 0.82, y: 0.18, r: 0.52, color: [205, 165, 125], phase: 1.4,  sx: 0.00010, sy: 0.00016, ox: 0.11, oy: 0.13 },
+    { x: 0.62, y: 0.82, r: 0.62, color: [240, 225, 200], phase: 2.8,  sx: 0.00013, sy: 0.00009, ox: 0.14, oy: 0.09 },
+    { x: 0.28, y: 0.72, r: 0.48, color: [195, 170, 140], phase: 4.2,  sx: 0.00017, sy: 0.00013, ox: 0.08, oy: 0.12 },
+  ];
+
+  function drawOrb(orb, t) {
+    const cx = (orb.x + Math.sin(t * orb.sx * 1000 + orb.phase) * orb.ox) * W;
+    const cy = (orb.y + Math.cos(t * orb.sy * 800  + orb.phase) * orb.oy) * H;
+    const radius = orb.r * Math.max(W, H);
+    const [r, g, b] = orb.color;
+
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+    grad.addColorStop(0,    `rgba(${r},${g},${b}, 0.60)`);
+    grad.addColorStop(0.45, `rgba(${r},${g},${b}, 0.20)`);
+    grad.addColorStop(1,    `rgba(${r},${g},${b}, 0)`);
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
   }
 
-  function init() {
-    resize();
-    const COUNT = Math.floor((W * H) / 18000); // sparse
-    particles = Array.from({ length: COUNT }, makeParticle);
-    // warm-in: start alpha at 0
-    particles.forEach(p => { p.alpha = 0; p.alpha_target = p.base_alpha; });
+  function tick(t) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#F5EFE4';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.globalCompositeOperation = 'multiply';
+    orbs.forEach(o => drawOrb(o, t));
+    ctx.globalCompositeOperation = 'source-over';
+
+    requestAnimationFrame(tick);
   }
 
-  function drawConnections() {
-    // draw faint lines between nearby particles
-    const DIST = 140;
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const a = particles[i], b = particles[j];
-        const dx = a.x - b.x, dy = a.y - b.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < DIST) {
-          const opacity = (1 - d / DIST) * 0.04; // very faint lines
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.strokeStyle = `rgba(160, 130, 100, ${opacity})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        }
-      }
-    }
-  }
-
-  let raf;
-  function tick() {
-    ctx.clearRect(0, 0, W, H);
-
-    drawConnections();
-
-    particles.forEach(p => {
-      // drift
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // soft wrap
-      if (p.x < -20) p.x = W + 20;
-      if (p.x > W + 20) p.x = -20;
-      if (p.y < -20) p.y = H + 20;
-      if (p.y > H + 20) p.y = -20;
-
-      // breathe
-      p.breath += p.breath_speed;
-      const breathed = p.base_alpha + Math.sin(p.breath) * (p.base_alpha * 0.4);
-
-      // ease alpha in
-      p.alpha += (breathed - p.alpha) * 0.02;
-
-      // draw dot
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.color + p.alpha + ')';
-      ctx.fill();
-    });
-
-    raf = requestAnimationFrame(tick);
-  }
-
-  function handleResize() {
-    resize();
-    // redistribute particles
-    particles.forEach(p => {
-      if (p.x > W) p.x = Math.random() * W;
-      if (p.y > H) p.y = Math.random() * H;
-    });
-  }
-
-  window.addEventListener('resize', handleResize);
-
-  init();
-  tick();
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(tick);
 })();
