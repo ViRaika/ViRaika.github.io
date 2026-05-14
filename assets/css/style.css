@@ -177,18 +177,10 @@ main {
 
 .home-desc {
   font-size: 1.05rem;
-  color: #5A4535;
+  color: var(--muted);
   max-width: 520px;
   line-height: 1.8;
   margin-bottom: 2.5rem;
-}
-
-.is-home .home-name {
-  text-shadow: 0 1px 40px rgba(245, 239, 228, 0.6);
-}
-
-.is-home .home-eyebrow {
-  text-shadow: 0 1px 20px rgba(245, 239, 228, 0.5);
 }
 
 .home-actions {

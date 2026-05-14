@@ -1,6 +1,3 @@
-// Soft animated gradient mesh for home page
-// Slow warm orbs drifting — clean, intentional
-
 (function () {
   const canvas = document.getElementById('home-canvas');
   if (!canvas) return;
@@ -13,42 +10,72 @@
     H = canvas.height = window.innerHeight;
   }
 
-  // Soft warm orbs that slowly breathe and drift
-  const orbs = [
-    { x: 0.18, y: 0.28, r: 0.58, color: [220, 180, 140], phase: 0.0,  sx: 0.00014, sy: 0.00011, ox: 0.13, oy: 0.11 },
-    { x: 0.82, y: 0.18, r: 0.52, color: [205, 165, 125], phase: 1.4,  sx: 0.00010, sy: 0.00016, ox: 0.11, oy: 0.13 },
-    { x: 0.62, y: 0.82, r: 0.62, color: [240, 225, 200], phase: 2.8,  sx: 0.00013, sy: 0.00009, ox: 0.14, oy: 0.09 },
-    { x: 0.28, y: 0.72, r: 0.48, color: [195, 170, 140], phase: 4.2,  sx: 0.00017, sy: 0.00013, ox: 0.08, oy: 0.12 },
+  // Warm, muted ring colours — close to the page background so they feel etched in
+  const COLORS = [
+    '192, 82, 42',   // terracotta
+    '94, 124, 94',   // sage
+    '160, 130, 100', // warm tan
+    '180, 150, 115', // dusty brown
   ];
 
-  function drawOrb(orb, t) {
-    const cx = (orb.x + Math.sin(t * orb.sx * 1000 + orb.phase) * orb.ox) * W;
-    const cy = (orb.y + Math.cos(t * orb.sy * 800  + orb.phase) * orb.oy) * H;
-    const radius = orb.r * Math.max(W, H);
-    const [r, g, b] = orb.color;
+  const rings = [];
 
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-    grad.addColorStop(0,    `rgba(${r},${g},${b}, 0.60)`);
-    grad.addColorStop(0.45, `rgba(${r},${g},${b}, 0.20)`);
-    grad.addColorStop(1,    `rgba(${r},${g},${b}, 0)`);
-
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
+  function spawnRing() {
+    rings.push({
+      x:       Math.random() * W,
+      y:       Math.random() * H,
+      r:       0,
+      maxR:    80 + Math.random() * 120,   // how far it expands
+      speed:   0.28 + Math.random() * 0.18, // px per frame — slow
+      alpha:   0.22 + Math.random() * 0.12, // start opacity — faint
+      width:   0.6 + Math.random() * 0.6,  // stroke width
+      color:   COLORS[Math.floor(Math.random() * COLORS.length)],
+    });
   }
 
-  function tick(t) {
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#F5EFE4';
-    ctx.fillRect(0, 0, W, H);
+  // Spawn a ring every 1.2–2.4 seconds
+  function scheduleNext() {
+    const delay = 1200 + Math.random() * 1200;
+    setTimeout(function () {
+      spawnRing();
+      scheduleNext();
+    }, delay);
+  }
 
-    ctx.globalCompositeOperation = 'multiply';
-    orbs.forEach(o => drawOrb(o, t));
-    ctx.globalCompositeOperation = 'source-over';
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+
+    for (let i = rings.length - 1; i >= 0; i--) {
+      const ring = rings[i];
+      ring.r += ring.speed;
+
+      // Fade out as it expands
+      const progress = ring.r / ring.maxR;           // 0 → 1
+      const opacity  = ring.alpha * (1 - progress);  // linear fade
+
+      if (opacity <= 0 || ring.r > ring.maxR) {
+        rings.splice(i, 1);
+        continue;
+      }
+
+      ctx.beginPath();
+      ctx.arc(ring.x, ring.y, ring.r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${ring.color}, ${opacity})`;
+      ctx.lineWidth = ring.width;
+      ctx.stroke();
+    }
 
     requestAnimationFrame(tick);
   }
 
   window.addEventListener('resize', resize);
   resize();
-  requestAnimationFrame(tick);
+
+  // Seed a couple of rings immediately so the page isn't empty on load
+  spawnRing();
+  setTimeout(spawnRing, 600);
+  setTimeout(spawnRing, 1400);
+
+  scheduleNext();
+  tick();
 })();
