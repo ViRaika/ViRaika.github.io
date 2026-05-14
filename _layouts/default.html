@@ -19,9 +19,11 @@
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" />
 </head>
-<body>
+<body class="{% if page.url == '/' %}is-home{% endif %}">
 
-<canvas id="rocket-canvas"></canvas>
+{% if page.url == '/' %}
+<canvas id="home-canvas"></canvas>
+{% endif %}
 
 <nav>
   <div class="nav-logo"></div>
@@ -34,14 +36,35 @@
   </ul>
 </nav>
 
-<main>
+<main id="main-content">
   {{ content }}
 </main>
 
-<script src="{{ '/assets/js/rocket.js' | relative_url }}"></script>
+{% if page.url == '/' %}
+<script src="{{ '/assets/js/home-animation.js' | relative_url }}"></script>
+{% endif %}
+
 {% if page.layout == 'blog_index' %}
 <script src="{{ '/assets/js/blog.js' | relative_url }}"></script>
 {% endif %}
+
+<script>
+// Page transition: fade out on nav click, let browser navigate
+(function() {
+  var links = document.querySelectorAll('a[href]');
+  links.forEach(function(link) {
+    var href = link.getAttribute('href');
+    // only internal links, not anchors
+    if (!href || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('http')) return;
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = link.href;
+      document.getElementById('main-content').classList.add('page-leaving');
+      setTimeout(function() { window.location.href = target; }, 320);
+    });
+  });
+})();
+</script>
 
 </body>
 </html>

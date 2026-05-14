@@ -2,18 +2,18 @@
    ROOT VARIABLES — warm, contrasting palette
    ============================================ */
 :root {
-  --bg:       #F5EFE4;   /* warm parchment */
-  --surface:  #EDE4D4;   /* slightly darker surface */
-  --card:     #FDFAF4;   /* near-white card */
-  --border:   #D9CDB8;   /* warm grey border */
+  --bg:       #F5EFE4;
+  --surface:  #EDE4D4;
+  --card:     #FDFAF4;
+  --border:   #D9CDB8;
 
-  --text:     #2A2118;   /* rich dark brown — high contrast */
-  --muted:    #7A6B58;   /* warm grey-brown */
-  --faint:    #B0A08A;   /* for decorative elements */
+  --text:     #2A2118;
+  --muted:    #7A6B58;
+  --faint:    #B0A08A;
 
-  --accent:   #C0522A;   /* terracotta — strong, warm accent */
-  --accent2:  #5E7C5E;   /* sage green — secondary accent */
-  --accent-soft: #E8C4A0; /* soft peach for hover states */
+  --accent:   #C0522A;
+  --accent2:  #5E7C5E;
+  --accent-soft: #E8C4A0;
 
   --nav-h:    56px;
   --font-mono: 'DM Mono', monospace;
@@ -30,9 +30,7 @@
   padding: 0;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
@@ -41,6 +39,48 @@ body {
   font-size: 16px;
   line-height: 1.7;
   min-height: 100vh;
+}
+
+/* ============================================
+   HOME CANVAS
+   ============================================ */
+#home-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.is-home nav {
+  background: rgba(245, 239, 228, 0.72);
+}
+
+.is-home main {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   PAGE TRANSITIONS
+   ============================================ */
+#main-content {
+  animation: pageEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#main-content.page-leaving {
+  animation: pageLeave 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes pageLeave {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-12px); }
 }
 
 /* ============================================
@@ -63,9 +103,8 @@ nav {
 }
 
 .nav-logo {
-  width: 64px;
+  width: 32px;
   height: 40px;
-  /* pixel rocket canvas is fixed-positioned, nav-logo is just a spacer now */
 }
 
 .nav-links {
@@ -104,20 +143,9 @@ main {
 }
 
 .page {
-  display: none;
   max-width: 760px;
   margin: 0 auto;
   padding: 3rem 1.5rem 4rem;
-  animation: fadeUp 0.35s ease;
-}
-
-.page.active {
-  display: block;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================
@@ -145,9 +173,7 @@ main {
   color: var(--text);
 }
 
-.accent {
-  color: var(--accent);
-}
+.accent { color: var(--accent); }
 
 .home-desc {
   font-size: 1.05rem;
@@ -171,6 +197,8 @@ main {
   cursor: pointer;
   transition: all 0.2s;
   letter-spacing: 0.02em;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn-primary {
@@ -198,9 +226,7 @@ main {
 /* ============================================
    PAGE HEADERS
    ============================================ */
-.page-header {
-  margin-bottom: 2.5rem;
-}
+.page-header { margin-bottom: 2.5rem; }
 
 .section-title {
   font-family: var(--font-serif);
@@ -234,7 +260,6 @@ main {
   border-color: #C9BAA8;
 }
 
-/* Header (always visible) */
 .blog-card-header {
   padding: 1.5rem 1.75rem 1.25rem;
   cursor: pointer;
@@ -293,9 +318,7 @@ main {
   transition: color 0.2s;
 }
 
-.blog-toggle-btn:hover {
-  color: var(--accent);
-}
+.blog-toggle-btn:hover { color: var(--accent); }
 
 .chevron {
   width: 18px;
@@ -304,15 +327,13 @@ main {
   display: block;
 }
 
-/* Preview text — shows when collapsed */
 .blog-preview {
   font-size: 0.9rem;
   color: var(--muted);
   line-height: 1.6;
-  transition: opacity 0.2s;
 }
 
-/* EXPANDED state */
+/* expanded state */
 .blog-card[data-expanded="true"] .chevron {
   transform: rotate(180deg);
 }
@@ -321,17 +342,14 @@ main {
   display: none;
 }
 
-/* COLLAPSED state */
+/* collapsed state */
 .blog-card[data-expanded="false"] .blog-content {
   display: none;
 }
 
-/* Content area */
 .blog-content {
-  padding: 0 1.75rem 1.75rem;
+  padding: 1.5rem 1.75rem 1.75rem;
   border-top: 1px solid var(--border);
-  margin-top: 0.25rem;
-  padding-top: 1.5rem;
 }
 
 .blog-content p {
@@ -341,9 +359,7 @@ main {
   font-size: 0.98rem;
 }
 
-.blog-content p:last-child {
-  margin-bottom: 0;
-}
+.blog-content p:last-child { margin-bottom: 0; }
 
 .latex-block {
   background: var(--surface);
@@ -386,10 +402,7 @@ main {
 /* ============================================
    CONTACT
    ============================================ */
-.contact-grid {
-  display: grid;
-  gap: 1.5rem;
-}
+.contact-grid { display: grid; gap: 1.5rem; }
 
 .contact-info {
   background: var(--card);
@@ -439,6 +452,17 @@ main {
   letter-spacing: 0.04em;
 }
 
+/* back link for post layout */
+.back-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.back-link:hover { color: var(--accent); }
+
 /* ============================================
    SCROLLBAR
    ============================================ */
@@ -455,5 +479,5 @@ main {
   .nav-link { padding: 0.4rem 0.5rem; font-size: 0.72rem; }
   .page { padding: 2rem 1rem 3rem; }
   .blog-card-header { padding: 1.25rem; }
-  .blog-content { padding: 0 1.25rem 1.25rem; padding-top: 1.25rem; }
+  .blog-content { padding: 1.25rem; }
 }
