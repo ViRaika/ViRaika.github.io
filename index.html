@@ -208,174 +208,198 @@ MathJax = {
 <script src="app.js"></script>
 <script>
 // =============================================
-// PIXEL ROCKET ANIMATION
+// IMPROVED MINIMAL ROCKET ANIMATION
 // =============================================
-(function() {
-  const PIXEL = 4; // size of each "pixel" block
-  // Rocket sprite (13 wide x 18 tall in pixel units), drawn as rows of chars
-  // R = rocket body, F = flame/plume, . = empty
-  const ROCKET_FRAMES = [
-    // Frame 0 - main
-    [
-      "....RRR.....",
-      "...RRRRR...",
-      "...RRRRR...",
-      "..RRRRRRR..",
-      "..RRRRRRR..",
-      ".RRRRRRRRR.",
-      ".RRRRRRRRR.",
-      "RRRRRRRRRRRR",
-      "RRRRRRRRRRRR",
-      ".RRRRRRRRR.",
-      ".RRRRRRRRR.",
-      "..RR...RR..",
-      "..RR...RR..",
-      ".FFF...FFF.",
-      ".FFF...FFF.",
-      "..FF...FF..",
-    ],
-    // Frame 1 - flame flicker
-    [
-      "....RRR.....",
-      "...RRRRR...",
-      "...RRRRR...",
-      "..RRRRRRR..",
-      "..RRRRRRR..",
-      ".RRRRRRRRR.",
-      ".RRRRRRRRR.",
-      "RRRRRRRRRRRR",
-      "RRRRRRRRRRRR",
-      ".RRRRRRRRR.",
-      ".RRRRRRRRR.",
-      "..RR...RR..",
-      "..RR...RR..",
-      "..FF...FF..",
-      ".FFFF.FFFF.",
-      "..FFF.FFF..",
-    ]
-  ];
-
-  const COLORS = {
-    R: '#E8C4A0', // warm cream/terracotta for body
-    F: '#E07040', // orange flame
-    f: '#F5B060', // lighter flame
-  };
-
+(function () {
   const canvas = document.getElementById('rocket-canvas');
   const ctx = canvas.getContext('2d');
 
-  const COLS = ROCKET_FRAMES[0][0].length;
-  const ROWS = ROCKET_FRAMES[0].length;
-  const W = COLS * PIXEL;
-  const H = ROWS * PIXEL;
+  const PIXEL = 2;
 
-  canvas.width = W + 20;
-  canvas.height = H + 10;
+  // Smaller + cleaner sprite
+  const ROCKET = [
+    '...R...',
+    '..RRR..',
+    '.RRRRR.',
+    '.RRRRR.',
+    '..R.R..',
+    '..F.F..',
+    '...F...',
+  ];
+
+  const COLORS = {
+    R: '#E8C4A0',
+    F: '#E07040'
+  };
+
+  const COLS = ROCKET[0].length;
+  const ROWS = ROCKET.length;
+
+  const ROCKET_W = COLS * PIXEL;
+  const ROCKET_H = ROWS * PIXEL;
+
+  canvas.width = window.innerWidth;
+  canvas.height = 120;
+
   canvas.style.cssText = `
     position: fixed;
     top: 0;
-    left: -${W + 20}px;
-    z-index: 999;
+    left: 0;
+    width: 100%;
+    height: 120px;
     pointer-events: none;
-    image-rendering: pixelated;
+    z-index: 999;
   `;
 
-  let phase = 'idle'; // idle | fly-in | stutter | fly-up
-  let x = -(W + 20);
-  let y = 8;
-  let frameIdx = 0;
-  let frameTimer = 0;
-  let stutterCount = 0;
-  let stutterDir = 1;
-  let animHandle = null;
-  let velY = 0;
+  let x = -40;
+  let y = 22;
 
-  function drawRocket(frame) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  let vx = 0;
+  let vy = 0;
+
+  let launched = false;
+  let time = 0;
+
+  const particles = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+  }
+
+  window.addEventListener('resize', resize);
+
+  function drawRocket(px, py) {
+    ctx.save();
+
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#E07040';
+
     for (let row = 0; row < ROWS; row++) {
-      const line = frame[row];
-      for (let col = 0; col < line.length; col++) {
+      const line = ROCKET[row];
+
+      for (let col = 0; col < COLS; col++) {
         const ch = line[col];
+
         if (ch === '.') continue;
-        ctx.fillStyle = ch === 'R' ? COLORS.R : COLORS.F;
-        ctx.fillRect(col * PIXEL, row * PIXEL, PIXEL, PIXEL);
+
+        ctx.fillStyle = COLORS[ch];
+
+        ctx.fillRect(
+          px + col * PIXEL,
+          py + row * PIXEL,
+          PIXEL,
+          PIXEL
+        );
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function emitParticle() {
+    particles.push({
+      x: x + ROCKET_W / 2,
+      y: y + ROCKET_H,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: Math.random() * 1.2 + 0.5,
+      life: 1
+    });
+  }
+
+  function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.02;
+
+      if (p.life <= 0) {
+        particles.splice(i, 1);
       }
     }
   }
 
-  function tick() {
-    frameTimer++;
-    if (frameTimer % 8 === 0) {
-      frameIdx = (frameIdx + 1) % 2;
-    }
-
-    drawRocket(ROCKET_FRAMES[frameIdx]);
-
-    if (phase === 'fly-in') {
-      x += 3;
-      canvas.style.left = x + 'px';
-      if (x >= 12) {
-        x = 12;
-        canvas.style.left = x + 'px';
-        phase = 'stutter';
-        stutterCount = 0;
-      }
-    } else if (phase === 'stutter') {
-      stutterCount++;
-      if (stutterCount % 12 < 6) {
-        x += stutterDir * 1.5;
-      } else {
-        x -= stutterDir * 1.5;
-      }
-      canvas.style.left = x + 'px';
-      if (stutterCount > 72) {
-        phase = 'fly-up';
-        velY = 0;
-      }
-    } else if (phase === 'fly-up') {
-      velY -= 0.25;
-      y += velY;
-      x += 1.5;
-      canvas.style.top = y + 'px';
-      canvas.style.left = x + 'px';
-      if (y < -(H + 30)) {
-        cancelAnimationFrame(animHandle);
-        phase = 'idle';
-        x = -(W + 20);
-        y = 8;
-        canvas.style.left = x + 'px';
-        canvas.style.top = y + 'px';
-        return;
-      }
-    } else {
-      cancelAnimationFrame(animHandle);
-      return;
-    }
-
-    animHandle = requestAnimationFrame(tick);
+  function drawParticles() {
+    particles.forEach(p => {
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = '#E07040';
+      ctx.fillRect(p.x, p.y, 2, 2);
+      ctx.globalAlpha = 1;
+    });
   }
 
-  function launchRocket() {
-    if (phase !== 'idle') return;
-    cancelAnimationFrame(animHandle);
-    x = -(W + 20);
-    y = 8;
-    canvas.style.left = x + 'px';
-    canvas.style.top = y + 'px';
-    phase = 'fly-in';
-    frameTimer = 0;
-    animHandle = requestAnimationFrame(tick);
+  function animate() {
+    requestAnimationFrame(animate);
+
+    time += 0.01;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Idle floating motion
+    if (!launched) {
+      x += 0.25;
+
+      if (x > 16) {
+        x = 16;
+      }
+
+      y = 22 + Math.sin(time * 2) * 2;
+
+      // soft engine flicker
+      if (Math.random() < 0.35) {
+        emitParticle();
+      }
+    }
+
+    // Launch sequence
+    if (launched) {
+      vx += 0.015;
+      vy += 0.05;
+
+      x += vx;
+      y -= vy;
+
+      for (let i = 0; i < 2; i++) {
+        emitParticle();
+      }
+
+      if (y < -60) {
+        launched = false;
+
+        x = -40;
+        y = 22;
+
+        vx = 0;
+        vy = 0;
+      }
+    }
+
+    updateParticles();
+    drawParticles();
+    drawRocket(x, y);
   }
 
-  // Trigger on tab visibility change
-  document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'visible') {
-      launchRocket();
-    }
+  // launch on logo click
+  const logo = document.getElementById('nav-logo');
+
+  logo.style.cursor = 'pointer';
+
+  logo.addEventListener('click', () => {
+    if (launched) return;
+
+    launched = true;
+
+    vx = 0.4;
+    vy = 1.2;
   });
 
-  // Also launch once on page load after a short delay
-  setTimeout(launchRocket, 600);
+  // subtle intro drift
+  setTimeout(() => {
+    x = -20;
+  }, 300);
+
+  animate();
 })();
 
 // =============================================
