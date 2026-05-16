@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Blitzstein experience (Lec 3) — Gambler's Ruin"
+title: "Blitzstein experience (Lec 8) — Gambler's Ruin"
 date: 2026-05-16
 tags: [Probability, Linear Algebra]
 excerpt: "I started with a simple gambler's ruin problem expecting probability tricks. Somehow I ended up rediscovering eigenvectors, matrix diagonalization, and why exponentials naturally appear in difference equations."
