@@ -10,7 +10,7 @@ I reached the hypergeometric distribution expecting another probability formula 
 
 Instead I accidentally rediscovered why industrial quality assurance becomes absurdly expensive.
 
-The setup looked innocent.
+The setup looked harmless.
 
 Suppose an aerospace manufacturer produces:
 
@@ -50,24 +50,24 @@ $$
 
 where:
 
-- $N=500$ is total population size
-- $K=12$ is number of defective parts
-- $n=25$ is sample size
+- $N=500$ is the total population size
+- $K=12$ is the number of defective fasteners
+- $n=25$ is the sample size
 
 The hypergeometric distribution appears because:
 
 - the population is finite
-- sampling is without replacement
+- sampling is done without replacement
 
 Meaning every draw slightly changes future probabilities.
 
-This is the important distinction from the binomial distribution.
+That is the important distinction from the binomial distribution.
 
 In binomial problems, probabilities stay fixed.
 
 Here they evolve after every sample because the inventory itself changes.
 
-Which is much closer to how real inspection works.
+Which is much closer to how real inspection actually works.
 
 ---
 
@@ -88,17 +88,17 @@ $$
 P(X \ge 1)
 $$
 
-because detecting at least one defective part counts as a successful inspection.
+because detecting at least one defective fastener counts as a successful inspection.
 
-Direct calculation is annoying.
+Direct calculation looked annoying.
 
-The complement is easier:
+The complement was much cleaner:
 
 $$
 P(X \ge 1)=1-P(X=0)
 $$
 
-So the real question becomes:
+So the real question became:
 
 > "What is the probability that inspection completely misses every defective fastener?"
 
@@ -148,7 +148,7 @@ Which means:
 
 > more than half the time, the inspection misses all defects.
 
-That result felt completely wrong emotionally.
+That result felt emotionally wrong.
 
 But mathematically it makes perfect sense.
 
@@ -164,7 +164,7 @@ I asked:
 
 > "Fine. Then how many samples are needed to achieve 95% detection probability?"
 
-So we solve for:
+So now we solve for:
 
 $$
 P(X\ge1)\ge0.95
