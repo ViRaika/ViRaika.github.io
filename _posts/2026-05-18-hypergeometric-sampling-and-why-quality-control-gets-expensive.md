@@ -32,7 +32,7 @@ At first glance, sampling 25 parts sounded decent to me.
 
 Surely that catches defects most of the time.
 
-Apparently intuition is a scam.
+Turns out intuition and combinatorics are not on speaking terms.
 
 ---
 
