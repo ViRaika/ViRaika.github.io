@@ -2,25 +2,81 @@
 layout: default
 title: Home
 ---
-<section class="home-split">
-  <div class="home-left">
-    <p class="home-eyebrow">// aerospace · probability · machine learning</p>
-    <h1 class="home-name">
-      Vishal<br /><span class="accent">Raika</span>
+
+<section class="vr-home">
+  <div class="vr-home-left">
+    <div class="vr-eyebrow">Portfolio · 2026</div>
+
+    <h1 class="vr-title">
+      Vishal<br><span>Raika</span>
     </h1>
-    <p class="home-desc">
-      I study aerospace engineering at IISc and spend most of my time
-      thinking about probability, machine learning, and systems that are
-      harder to model than they first appear.
-      This site is a small collection of projects, notes, and things I'm
-      building or learning.
-    </p>
-    <div class="home-actions">
-      <a href="{{ '/blog/' | relative_url }}" class="btn btn-primary">Read Notes</a>
-      <a href="{{ '/contact/' | relative_url }}" class="btn btn-ghost">Say Hello</a>
+
+    <div class="vr-discipline">Aerospace Engineering</div>
+
+    <div class="vr-bio">
+      <p>
+        I study aerospace engineering. Most of what I'm interested in sits somewhere between probability, machine learning, and complex systems.
+      </p>
+      <br>
+      <p>
+        This site is a place for projects, notes, and things I'm exploring.
+      </p>
+    </div>
+
+    <div class="vr-ring ring1"></div>
+    <div class="vr-ring ring2"></div>
+  </div>
+
+  <div class="vr-home-right">
+    <div class="vr-scene">
+      <div class="vr-base-blob"></div>
+      <div class="vr-glass-blob" id="glass"></div>
+
+      <div class="vr-tag">Probability</div>
+      <div class="vr-tag">ML Systems</div>
+      <div class="vr-tag">Complexity</div>
+
+      <div class="vr-corner tl"></div>
+      <div class="vr-corner br"></div>
     </div>
   </div>
-  <div class="home-right">
-    <canvas id="home-canvas"></canvas>
-  </div>
 </section>
+
+<script>
+const SC = 230;
+const GW = 195, GH = 172;
+
+let targetAngle = 0, currentAngle = 0, angularVelocity = 0;
+const SPRING = 0.012, DAMPING = 0.88, BASE_SPEED = 0.008;
+let last = null;
+const glass = document.getElementById('glass');
+
+function orbitRadius(a) {
+  return 140 + 22*Math.sin(2*a+0.5) + 14*Math.sin(3*a+1.2) + 8*Math.sin(5*a-0.8);
+}
+
+function tick(ts) {
+  if (!last) last = ts;
+  const dt = Math.min(ts - last, 32);
+  last = ts;
+
+  targetAngle += BASE_SPEED * (dt / 16.67);
+  const diff = targetAngle - currentAngle;
+  angularVelocity += diff * SPRING;
+  angularVelocity *= DAMPING;
+  currentAngle += angularVelocity;
+
+  const r = orbitRadius(currentAngle);
+  const x = SC + r * Math.cos(currentAngle) - GW / 2;
+  const y = SC + r * Math.sin(currentAngle) - GH / 2;
+  glass.style.left = x + 'px';
+  glass.style.top = y + 'px';
+
+  const tangentDeg = (currentAngle * 180 / Math.PI) + 90;
+  glass.style.transform = `rotate(${tangentDeg}deg)`;
+
+  requestAnimationFrame(tick);
+}
+
+requestAnimationFrame(tick);
+</script>
