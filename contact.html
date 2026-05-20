@@ -39,7 +39,7 @@ permalink: /contact/
       </div>
     </div>
 
-    <!-- Coffee / UPI -->
+    <!-- Coffee -->
     <div class="contact-info coffee-card">
       <h3 class="contact-info-title">// buy me a coffee ☕</h3>
 
@@ -56,119 +56,12 @@ permalink: /contact/
         />
 
         <div class="qr-label">
-          <span class="qr-hint">scan with any UPI app</span>
+          <span class="qr-hint">
+            scan with any UPI app
+          </span>
         </div>
       </div>
     </div>
 
   </div>
 </section>
-
-<style>
-/* =============================================
-   CONTACT PAGE
-============================================= */
-
-.contact-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.contact-info {
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 20px;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(12px);
-}
-
-.contact-info-title {
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
-  opacity: 0.8;
-}
-
-.contact-links {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.contact-link-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.2rem;
-  border-radius: 14px;
-  text-decoration: none;
-  color: inherit;
-  background: rgba(255, 255, 255, 0.65);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.contact-link-item:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.contact-link-label {
-  font-weight: 600;
-  opacity: 0.7;
-}
-
-/* =============================================
-   COFFEE CARD
-============================================= */
-
-.coffee-card {
-  text-align: center;
-}
-
-.coffee-note {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  opacity: 0.75;
-  margin-bottom: 1.5rem;
-}
-
-.qr-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.qr-image {
-  width: 220px;
-  max-width: 100%;
-  border-radius: 20px;
-  border: 1.5px solid #d9cdb8;
-  background: #fdfaf4;
-  padding: 14px;
-  display: block;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-}
-
-.qr-hint {
-  font-size: 0.9rem;
-  opacity: 0.6;
-}
-
-/* =============================================
-   MOBILE
-============================================= */
-
-@media (max-width: 768px) {
-  .contact-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .contact-link-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.3rem;
-  }
-}
-</style>
