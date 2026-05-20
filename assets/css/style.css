@@ -339,9 +339,23 @@ main {
   height: 15px;
 }
 
-/* Copied state — brief green flash */
+/* Copied state — smooth blink then hold */
+.blog-share-btn {
+  position: relative;
+  transition: color 0.2s, opacity 0.15s;
+}
+
 .blog-share-btn.copied {
   color: var(--accent2);
+  animation: shareBlink 0.35s ease;
+}
+
+@keyframes shareBlink {
+  0%   { opacity: 1; }
+  30%  { opacity: 0.2; }
+  60%  { opacity: 1; }
+  80%  { opacity: 0.5; }
+  100% { opacity: 1; }
 }
 
 .blog-share-btn.copied::after {
@@ -354,13 +368,12 @@ main {
   border: 1px solid var(--border);
   padding: 0.2rem 0.5rem;
   border-radius: 6px;
-  transform: translateY(-28px);
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
   white-space: nowrap;
   pointer-events: none;
-}
-
-.blog-share-btn {
-  position: relative;
+  box-shadow: 0 2px 8px rgba(42,33,24,0.08);
 }
 
 
@@ -566,11 +579,74 @@ main {
 /* ============================================
    RESPONSIVE
    ============================================ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .page { padding: 2.5rem 1.25rem 3.5rem; }
+
+  .contact-grid { grid-template-columns: 1fr; }
+
+  /* QR — scale down so it fits without scrolling */
+  #qr-canvas {
+    width: 180px !important;
+    height: 180px !important;
+  }
+}
+
+/* Mobile */
 @media (max-width: 600px) {
-  nav { padding: 0 1rem; }
+
+  /* Nav — tighter, still readable */
+  nav { padding: 0 0.875rem; }
+  .nav-logo { display: none; }
   .nav-links { gap: 0; }
-  .nav-link { padding: 0.4rem 0.5rem; font-size: 0.72rem; }
+  .nav-link {
+    padding: 0.35rem 0.45rem;
+    font-size: 0.68rem;
+    letter-spacing: 0;
+  }
+
+  /* Page */
   .page { padding: 2rem 1rem 3rem; }
-  .blog-card-header { padding: 1.25rem; }
-  .blog-content { padding: 1.25rem; }
+
+  /* Home hero */
+  .home-hero { padding-top: 2rem; }
+  .home-name { margin-bottom: 1.25rem; }
+  .home-desc { font-size: 0.95rem; }
+  .btn { font-size: 0.78rem; padding: 0.6rem 1.1rem; }
+
+  /* Blog cards */
+  .blog-card-header { padding: 1.1rem 1.1rem 0.9rem; }
+  .blog-content { padding: 1.1rem; }
+  .blog-title { font-size: 1.05rem; }
+
+  /* Bigger tap targets for share + toggle */
+  .blog-toggle-btn,
+  .blog-share-btn {
+    padding: 0.5rem;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  /* Blog card title row — let title breathe */
+  .blog-card-title-row { gap: 0.5rem; }
+
+  /* Contact links — stack label above value on small screens */
+  .contact-link-item {
+    flex-direction: column;
+    gap: 0.15rem;
+    align-items: flex-start;
+  }
+  .contact-link-label { min-width: unset; }
+
+  /* QR — visible and centred on mobile */
+  .qr-wrap { padding: 0 0.5rem; }
+  #qr-canvas {
+    width: 160px !important;
+    height: 160px !important;
+  }
+  .qr-upi { font-size: 0.7rem; }
+
+  /* Section titles */
+  .section-title { font-size: 1.65rem; }
 }
