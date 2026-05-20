@@ -3,10 +3,13 @@ layout: default
 title: Contact
 permalink: /contact/
 ---
+
 <section class="page active">
   <div class="page-header">
     <h2 class="section-title">Contact</h2>
-    <p class="section-sub">// open to interesting conversations and collaborations</p>
+    <p class="section-sub">
+      // open to interesting conversations and collaborations
+    </p>
   </div>
 
   <div class="contact-grid">
@@ -14,12 +17,22 @@ permalink: /contact/
     <!-- Reach out -->
     <div class="contact-info">
       <h3 class="contact-info-title">// reach out</h3>
+
       <div class="contact-links">
-        <a href="mailto:contact.viraika@gmail.com" class="contact-link-item">
+        <a
+          href="mailto:contact.viraika@gmail.com"
+          class="contact-link-item"
+        >
           <span class="contact-link-label">Email</span>
           <span>contact.viraika@gmail.com</span>
         </a>
-        <a href="https://linkedin.com/in/vishal-raika/" target="_blank" rel="noopener" class="contact-link-item">
+
+        <a
+          href="https://linkedin.com/in/vishal-raika/"
+          target="_blank"
+          rel="noopener"
+          class="contact-link-item"
+        >
           <span class="contact-link-label">LinkedIn</span>
           <span>linkedin.com/in/vishal-raika</span>
         </a>
@@ -29,13 +42,19 @@ permalink: /contact/
     <!-- Coffee / UPI -->
     <div class="contact-info coffee-card">
       <h3 class="contact-info-title">// buy me a coffee ☕</h3>
+
       <p class="coffee-note">
         If something here was useful or you just feel generous —
         a cup of coffee goes a long way.
       </p>
 
       <div class="qr-wrap">
-        <canvas id="qr-canvas"></canvas>
+        <img
+          src="{{ '/assets/images/download.png' | relative_url }}"
+          alt="UPI QR Code"
+          class="qr-image"
+        />
+
         <div class="qr-label">
           <span class="qr-hint">scan with any UPI app</span>
         </div>
@@ -45,75 +64,111 @@ permalink: /contact/
   </div>
 </section>
 
-<!-- QR code library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-rRoXxn2yHlrZYB587Ki9RO1tONhLdM6XfORg7Rw4uwH4/Fh/5nP7IUX91bkaKUgs" crossorigin="anonymous"></script>
-<script>
-(function () {
-  // We'll draw a styled QR onto our canvas using a hidden div as intermediary
-  const UPI = 'upi://pay?pa=vishalraika38@okhdfcbank&pn=Vishal%20Raika&cu=INR';
+<style>
+/* =============================================
+   CONTACT PAGE
+============================================= */
 
-  // QRCode.js needs a div to render into, then we can style
-  const container = document.createElement('div');
-  container.style.display = 'none';
-  document.body.appendChild(container);
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
 
-  new QRCode(container, {
-    text: UPI,
-    width: 256,
-    height: 256,
-    colorDark: '#2A2118',
-    colorLight: '#FDFAF4',
-    correctLevel: QRCode.CorrectLevel.M,
-  });
+.contact-info {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+}
 
-  // Wait for QRCode to render its canvas/img
-  setTimeout(function () {
-    const sourceImg = container.querySelector('img') || container.querySelector('canvas');
-    if (!sourceImg) return;
+.contact-info-title {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
 
-    const dest = document.getElementById('qr-canvas');
-    if (!dest) return;
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
-    const SIZE = 200;
-    const BORDER = 18;
-    const TOTAL = SIZE + BORDER * 2;
+.contact-link-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.65);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
 
-    dest.width  = TOTAL;
-    dest.height = TOTAL;
-    const ctx = dest.getContext('2d');
+.contact-link-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.9);
+}
 
-    // Background rounded rect
-    const r = 16;
-    ctx.fillStyle = '#FDFAF4';
-    ctx.beginPath();
-    ctx.moveTo(r, 0);
-    ctx.lineTo(TOTAL - r, 0);
-    ctx.quadraticCurveTo(TOTAL, 0, TOTAL, r);
-    ctx.lineTo(TOTAL, TOTAL - r);
-    ctx.quadraticCurveTo(TOTAL, TOTAL, TOTAL - r, TOTAL);
-    ctx.lineTo(r, TOTAL);
-    ctx.quadraticCurveTo(0, TOTAL, 0, TOTAL - r);
-    ctx.lineTo(0, r);
-    ctx.quadraticCurveTo(0, 0, r, 0);
-    ctx.closePath();
-    ctx.fill();
+.contact-link-label {
+  font-weight: 600;
+  opacity: 0.7;
+}
 
-    // Subtle border
-    ctx.strokeStyle = '#D9CDB8';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+/* =============================================
+   COFFEE CARD
+============================================= */
 
-    // Draw the QR image centred
-    if (sourceImg.tagName === 'IMG') {
-      sourceImg.onload = function () {
-        ctx.drawImage(sourceImg, BORDER, BORDER, SIZE, SIZE);
-      };
-      if (sourceImg.complete) ctx.drawImage(sourceImg, BORDER, BORDER, SIZE, SIZE);
-    } else {
-      ctx.drawImage(sourceImg, BORDER, BORDER, SIZE, SIZE);
-    }
+.coffee-card {
+  text-align: center;
+}
 
-    document.body.removeChild(container);
-  }, 200);
-})();
-</script>
+.coffee-note {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  opacity: 0.75;
+  margin-bottom: 1.5rem;
+}
+
+.qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.qr-image {
+  width: 220px;
+  max-width: 100%;
+  border-radius: 20px;
+  border: 1.5px solid #d9cdb8;
+  background: #fdfaf4;
+  padding: 14px;
+  display: block;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.qr-hint {
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+/* =============================================
+   MOBILE
+============================================= */
+
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-link-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+}
+</style>
