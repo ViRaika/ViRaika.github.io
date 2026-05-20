@@ -2,21 +2,25 @@
 layout: default
 title: Home
 ---
-<section class="page active">
-  <div class="home-hero">
+<section class="home-split">
+  <div class="home-left">
     <p class="home-eyebrow">// aerospace · probability · machine learning</p>
     <h1 class="home-name">
       Vishal<br /><span class="accent">Raika</span>
     </h1>
     <p class="home-desc">
-      I study aerospace engineering. Most of what I’m interested in sits
-      somewhere between probability, machine learning, and complex systems.
-
-      This site is a place for projects, notes, and things I’m exploring.
+      I study aerospace engineering at IISc and spend most of my time
+      thinking about probability, machine learning, and systems that are
+      harder to model than they first appear.
+      This site is a small collection of projects, notes, and things I'm
+      building or learning.
     </p>
     <div class="home-actions">
       <a href="{{ '/blog/' | relative_url }}" class="btn btn-primary">Read Notes</a>
       <a href="{{ '/contact/' | relative_url }}" class="btn btn-ghost">Say Hello</a>
     </div>
+  </div>
+  <div class="home-right">
+    <canvas id="home-canvas"></canvas>
   </div>
 </section>

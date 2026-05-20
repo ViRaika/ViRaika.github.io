@@ -19,11 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" />
 </head>
-<body class="{% if page.url == '/' %}is-home{% endif %}">
-
-{% if page.url == '/' %}
-<canvas id="home-canvas"></canvas>
-{% endif %}
+<body class="{% if page.url == '/' %}is-home{% endif %}{% unless page.url == '/' %} is-inner{% endunless %}">
 
 <nav>
   <div class="nav-logo"></div>
@@ -49,18 +45,61 @@
 {% endif %}
 
 <script>
-// Page transition: fade out on nav click, let browser navigate
-(function() {
-  var links = document.querySelectorAll('a[href]');
-  links.forEach(function(link) {
+(function () {
+  var isHome = document.body.classList.contains('is-home');
+  var isInner = document.body.classList.contains('is-inner');
+
+  // On inner pages entering — slide in from right
+  if (isInner) {
+    var mc = document.getElementById('main-content');
+    mc.classList.add('slide-enter-right');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        mc.classList.add('slide-enter-active');
+        mc.classList.remove('slide-enter-right');
+      });
+    });
+  }
+
+  // On home entering from inner — slide in from left
+  if (isHome && document.referrer && document.referrer !== window.location.href) {
+    var ref = document.referrer;
+    var origin = window.location.origin;
+    if (ref.startsWith(origin) && ref !== origin + '/') {
+      var mc2 = document.getElementById('main-content');
+      mc2.classList.add('slide-enter-left');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          mc2.classList.add('slide-enter-active');
+          mc2.classList.remove('slide-enter-left');
+        });
+      });
+    }
+  }
+
+  // Intercept nav clicks
+  document.querySelectorAll('a[href]').forEach(function (link) {
     var href = link.getAttribute('href');
-    // only internal links, not anchors
     if (!href || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('http')) return;
-    link.addEventListener('click', function(e) {
+
+    link.addEventListener('click', function (e) {
       e.preventDefault();
-      var target = link.href;
-      document.getElementById('main-content').classList.add('page-leaving');
-      setTimeout(function() { window.location.href = target; }, 320);
+      var dest = link.href;
+      var goingHome = (dest === window.location.origin + '/' || dest === window.location.origin + '/index.html');
+      var mc = document.getElementById('main-content');
+
+      if (isHome && !goingHome) {
+        // Home → inner: slide out to left
+        mc.classList.add('slide-exit-left');
+      } else if (isInner && goingHome) {
+        // Inner → home: slide out to right
+        mc.classList.add('slide-exit-right');
+      } else {
+        // Inner → inner: simple fade
+        mc.classList.add('page-leaving');
+      }
+
+      setTimeout(function () { window.location.href = dest; }, 340);
     });
   });
 })();

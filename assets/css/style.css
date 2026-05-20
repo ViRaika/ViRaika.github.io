@@ -42,46 +42,101 @@ body {
 }
 
 /* ============================================
-   HOME CANVAS
+   HOME — TWO COLUMN SPLIT
    ============================================ */
+.home-split {
+  display: grid;
+  grid-template-columns: 45fr 55fr;
+  min-height: calc(100vh - var(--nav-h));
+  align-items: center;
+}
+
+.home-left {
+  z-index: 1;
+  position: relative;
+  padding: 0 3rem 0 8%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home-right {
+  margin-left: -80px;
+  position: relative;
+  height: calc(100vh - var(--nav-h));
+  overflow: hidden;
+}
+
 #home-canvas {
-  position: fixed;
+  position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.is-home nav {
-  background: rgba(245, 239, 228, 0.72);
-}
-
-.is-home main {
-  position: relative;
-  z-index: 1;
 }
 
 /* ============================================
    PAGE TRANSITIONS
    ============================================ */
+
+/* Inner pages: fade up on enter (non-home to non-home) */
 #main-content {
-  animation: pageEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pageEnter 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes pageEnter {
-  from { opacity: 0; transform: translateY(18px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Simple fade exit (inner → inner) */
 #main-content.page-leaving {
-  animation: pageLeave 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+  animation: pageLeave 0.28s ease both;
 }
 
 @keyframes pageLeave {
   from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 0; transform: translateY(-10px); }
 }
+
+/* Slide in from right — entering an inner page from home */
+#main-content.slide-enter-right {
+  transform: translateX(60px);
+  opacity: 0;
+}
+
+/* Slide in from left — returning home from inner */
+#main-content.slide-enter-left {
+  transform: translateX(-60px);
+  opacity: 0;
+}
+
+#main-content.slide-enter-active {
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity   0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Slide out to left — leaving home toward inner */
+#main-content.slide-exit-left {
+  animation: slideExitLeft 0.34s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes slideExitLeft {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(-60px); opacity: 0; }
+}
+
+/* Slide out to right — leaving inner toward home */
+#main-content.slide-exit-right {
+  animation: slideExitRight 0.34s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes slideExitRight {
+  from { transform: translateX(0);   opacity: 1; }
+  to   { transform: translateX(60px); opacity: 0; }
+}
+
 
 /* ============================================
    NAV
@@ -149,10 +204,40 @@ main {
 }
 
 /* ============================================
-   HOME
+   HOME CONTENT (inside .home-left)
    ============================================ */
-.home-hero {
-  padding-top: 3.5rem;
+.home-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent2);
+  letter-spacing: 0.06em;
+  margin-bottom: 1.75rem;
+}
+
+.home-name {
+  font-family: var(--font-serif);
+  font-size: clamp(3rem, 5vw, 5rem);
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+  color: var(--text);
+}
+
+.accent { color: var(--accent); }
+
+.home-desc {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 400px;
+  line-height: 1.85;
+  margin-bottom: 2.75rem;
+}
+
+.home-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .home-eyebrow {
@@ -165,7 +250,7 @@ main {
 
 .home-name {
   font-family: var(--font-serif);
-  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-size: clamp(2.8rem, 4.5vw, 4.8rem);
   line-height: 1.08;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -584,9 +669,28 @@ main {
 @media (max-width: 768px) {
   .page { padding: 2.5rem 1.25rem 3.5rem; }
 
+  /* Two-column home collapses to single column */
+  .home-split {
+    grid-template-columns: 1fr;
+    min-height: unset;
+  }
+
+  .home-left {
+  z-index: 1;
+  position: relative;
+    padding: 2.5rem 1.25rem 1.5rem;
+    max-width: 100%;
+  }
+
+  /* Blobs become a short decorative strip below text */
+  .home-right {
+  margin-left: -80px;
+    height: 220px;
+    width: 100%;
+  }
+
   .contact-grid { grid-template-columns: 1fr; }
 
-  /* QR — scale down so it fits without scrolling */
   #qr-canvas {
     width: 180px !important;
     height: 180px !important;
@@ -595,8 +699,6 @@ main {
 
 /* Mobile */
 @media (max-width: 600px) {
-
-  /* Nav — tighter, still readable */
   nav { padding: 0 0.875rem; }
   .nav-logo { display: none; }
   .nav-links { gap: 0; }
@@ -606,21 +708,21 @@ main {
     letter-spacing: 0;
   }
 
-  /* Page */
   .page { padding: 2rem 1rem 3rem; }
 
-  /* Home hero */
-  .home-hero { padding-top: 2rem; }
+  .home-left {
+  z-index: 1;
+  position: relative; padding: 2rem 1rem 1rem; }
+  .home-right {
+  margin-left: -80px; height: 180px; }
   .home-name { margin-bottom: 1.25rem; }
   .home-desc { font-size: 0.95rem; }
   .btn { font-size: 0.78rem; padding: 0.6rem 1.1rem; }
 
-  /* Blog cards */
   .blog-card-header { padding: 1.1rem 1.1rem 0.9rem; }
   .blog-content { padding: 1.1rem; }
   .blog-title { font-size: 1.05rem; }
 
-  /* Bigger tap targets for share + toggle */
   .blog-toggle-btn,
   .blog-share-btn {
     padding: 0.5rem;
@@ -628,10 +730,8 @@ main {
     min-height: 36px;
   }
 
-  /* Blog card title row — let title breathe */
   .blog-card-title-row { gap: 0.5rem; }
 
-  /* Contact links — stack label above value on small screens */
   .contact-link-item {
     flex-direction: column;
     gap: 0.15rem;
@@ -639,7 +739,6 @@ main {
   }
   .contact-link-label { min-width: unset; }
 
-  /* QR — visible and centred on mobile */
   .qr-wrap { padding: 0 0.5rem; }
   #qr-canvas {
     width: 160px !important;
@@ -647,6 +746,5 @@ main {
   }
   .qr-upi { font-size: 0.7rem; }
 
-  /* Section titles */
   .section-title { font-size: 1.65rem; }
 }
