@@ -776,212 +776,196 @@ main {
 
 /* ===== HOMEPAGE REDESIGN ===== */
 
-/* Override root palette for warm coherence */
-:root {
-  --bg:      #F3EEE5;
-  --surface: #EDE7DB;
-  --card:    #F8F4ED;
-  --border:  rgba(60, 45, 25, 0.10);
-  --text:    #1A1410;
-  --muted:   #7A6F63;
-  --faint:   #B0A695;
-  /* warm terracotta family — belongs to the parchment */
-  --accent:  #A85432;
-  --accent2: #7A6040;
-}
+/* ============================================
+   HOMEPAGE — CLEAN EDITORIAL MINIMAL
+============================================ */
 
-/* ── Layout ────────────────────────────────── */
 .vr-home {
   display: grid;
-  /* intentional asymmetry: text gets ~45%, blob space gets ~55% */
-  grid-template-columns: 45fr 55fr;
+  grid-template-columns: 44fr 56fr;
   min-height: calc(100vh - var(--nav-h));
   align-items: center;
-  background: var(--bg);
   overflow: hidden;
 }
 
-/* ── Left: text column ─────────────────────── */
+/* ───────── LEFT SIDE ───────── */
+
 .vr-home-left {
   position: relative;
-  padding: 0 2rem 0 max(5vw, 2.5rem);
-  display: flex;
-  flex-direction: column;
-  /* push text slightly above center for editorial tension */
-  padding-bottom: 6vh;
-}
-
-.vr-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--faint);
-  margin-bottom: 2.4rem;
-  /* subtle left indent to break flush alignment */
-  padding-left: 1px;
+  padding-left: clamp(2rem, 6vw, 6rem);
+  padding-right: 2rem;
+  transform: translateY(-4vh);
 }
 
 .vr-title {
-  font-family: 'Playfair Display', var(--font-serif);
-  font-size: clamp(3.8rem, 6.5vw, 6rem);
-  line-height: 0.92;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(4rem, 7vw, 6.5rem);
+  line-height: 0.9;
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.04em;
   color: var(--text);
-  margin-bottom: 0;
 }
 
-/* "Raika" — slightly lighter, creates name as a two-beat object */
 .vr-title span {
-  color: var(--muted);
-  font-weight: 400;
+  color: #8C7F73;
   font-style: italic;
+  font-weight: 400;
 }
 
 .vr-discipline {
+  margin-top: 2rem;
+  margin-bottom: 2.75rem;
+
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--accent2);
-  /* generous gap creates breath between name and discipline */
-  margin-top: 2rem;
-  margin-bottom: 3rem;
+  color: #9A8B79;
 }
 
-/* thin rule — acts as a quiet separator, not decoration */
 .vr-discipline::before {
   content: '';
   display: inline-block;
-  width: 24px;
+  width: 26px;
   height: 1px;
-  background: var(--accent2);
-  vertical-align: middle;
+  background: rgba(122,111,99,0.35);
   margin-right: 0.8rem;
-  opacity: 0.5;
+  vertical-align: middle;
 }
 
 .vr-bio {
-  color: var(--muted);
+  max-width: 420px;
   font-size: 1rem;
-  line-height: 1.9;
-  max-width: 400px;
+  line-height: 1.95;
+  color: var(--muted);
 }
 
-.vr-bio p + p {
-  margin-top: 1.1rem;
-}
+/* ───────── RIGHT SIDE ───────── */
 
-/* ── Right: blob field ─────────────────────── */
 .vr-home-right {
   position: relative;
   height: calc(100vh - var(--nav-h));
-  /* blob field is borderless, open — no box */
 }
 
 .vr-scene {
   position: absolute;
   inset: 0;
-  /* scene is the full right column — no border, no card */
 }
 
-/* Base blob: warm amber-sand gradient instead of cold blue */
 .vr-base-blob {
   position: absolute;
-  /* anchor slightly off-center right: creates tension with left text */
   top: 50%;
-  left: 50%;
-  transform: translate(-38%, -50%);
-  width: min(55vh, 420px);
-  height: min(55vh, 420px);
-  background: radial-gradient(
-    ellipse at 35% 30%,
-    #E8C49A 0%,
-    #D4956A 28%,
-    #B8623A 58%,
-    #6B2E18 100%
-  );
-  border-radius: 60% 40% 55% 45% / 50% 58% 42% 52%;
-  animation: vr-morph 9s ease-in-out infinite;
-  /* soft glow — warm, not neon */
+  left: 52%;
+  transform: translate(-50%, -50%);
+
+  width: min(52vh, 420px);
+  height: min(52vh, 420px);
+
+  border-radius: 58% 42% 52% 48% / 45% 56% 44% 55%;
+
+  background:
+    radial-gradient(
+      circle at 35% 32%,
+      #E6C29A 0%,
+      #D28A59 35%,
+      #A6502B 72%,
+      #6F2E16 100%
+    );
+
+  animation: blobMorph 12s ease-in-out infinite;
+
   box-shadow:
-    0 0 80px rgba(184, 98, 58, 0.18),
-    0 0 160px rgba(184, 98, 58, 0.08);
+    0 0 140px rgba(168,84,50,0.10);
 }
 
-@keyframes vr-morph {
-  0%, 100% { border-radius: 60% 40% 55% 45% / 50% 58% 42% 52%; }
-  33%       { border-radius: 48% 52% 43% 57% / 54% 46% 58% 42%; }
-  66%       { border-radius: 55% 45% 48% 52% / 42% 56% 44% 58%; }
-}
-
-/* Glass blob: orbits the base blob */
-.vr-glass-blob {
-  position: absolute;
-  width: 195px;
-  height: 172px;
-  background: radial-gradient(
-    ellipse at 38% 28%,
-    rgba(255, 248, 235, 0.55),
-    rgba(255, 235, 200, 0.12)
-  );
-  border-radius: 55% 45% 60% 40%;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 240, 210, 0.38);
-  box-shadow: 0 0 32px rgba(232, 180, 120, 0.10);
-}
-
-/* Minimal geometric accent: a single horizontal rule at 1/3 height */
-/* Creates compositional grounding without decoration noise */
-.vr-scene::after {
+/* soft aura */
+.vr-base-blob::after {
   content: '';
   position: absolute;
-  left: -20%;
-  right: 8%;
-  /* sits slightly above center, anchors the blob visually */
-  top: calc(50% + min(28vh, 220px));
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(168, 84, 50, 0.18) 30%,
-    rgba(168, 84, 50, 0.10) 70%,
-    transparent
-  );
+  inset: -90px;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(214,140,92,0.12),
+      transparent 70%
+    );
+
+  z-index: -1;
 }
 
-/* hide the tag and corner elements — clean composition */
+/* glass accent */
+.vr-glass-blob {
+  position: absolute;
+  top: 30%;
+  left: 58%;
+
+  width: 180px;
+  height: 180px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.28),
+      rgba(255,255,255,0.06)
+    );
+
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+/* organic morphing */
+@keyframes blobMorph {
+  0%,100% {
+    border-radius: 58% 42% 52% 48% / 45% 56% 44% 55%;
+  }
+
+  33% {
+    border-radius: 48% 52% 43% 57% / 58% 42% 58% 42%;
+  }
+
+  66% {
+    border-radius: 55% 45% 58% 42% / 42% 58% 45% 55%;
+  }
+}
+
+/* remove old decorative junk */
 .vr-tag,
 .vr-corner,
-.vr-ring { display: none; }
+.vr-ring,
+.vr-scene::after {
+  display: none !important;
+}
 
-/* ── Responsive ────────────────────────────── */
+/* ───────── MOBILE ───────── */
+
 @media (max-width: 900px) {
   .vr-home {
     grid-template-columns: 1fr;
-    min-height: unset;
   }
+
   .vr-home-left {
-    padding: 3rem 1.5rem 1.5rem;
-    padding-bottom: 0;
+    transform: none;
+    padding: 2.5rem 1.5rem 1rem;
   }
+
   .vr-home-right {
     height: 260px;
-    width: 100%;
   }
-  .vr-base-blob {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 200px;
-    height: 200px;
-  }
-}
 
-@media (max-width: 600px) {
-  .vr-home-left { padding: 2.5rem 1.25rem 1rem; }
-  .vr-home-right { height: 200px; }
-  .vr-base-blob { width: 160px; height: 160px; }
+  .vr-base-blob {
+    width: 220px;
+    height: 220px;
+  }
+
+  .vr-glass-blob {
+    width: 120px;
+    height: 120px;
+  }
 }
