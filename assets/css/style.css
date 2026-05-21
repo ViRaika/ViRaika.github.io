@@ -78,42 +78,40 @@ body {
    PAGE TRANSITIONS
    ============================================ */
 
-/* Page transition — instant swap, smooth fade+rise */
+/* Page transition — morph fade (scale + opacity) */
 #main-content {
   opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transform: scale(1);
+  transform-origin: center top;
 }
 
-/* Initial page load: fade up gently once */
 #main-content.page-first-load {
-  animation: pageEnterFirst 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: morphEnterFirst 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes pageEnterFirst {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes morphEnterFirst {
+  from { opacity: 0; transform: scale(1.03); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-/* Fetch-based swap states */
 #main-content.page-out {
   opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transform: scale(0.96);
+  transition: opacity 0.26s ease, transform 0.26s ease;
   pointer-events: none;
 }
 
 #main-content.page-in {
   opacity: 0;
-  transform: translateY(10px);
-  transition: none; /* snap to start position instantly */
+  transform: scale(1.03);
+  transition: none;
 }
 
 #main-content.page-in-active {
   opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: scale(1);
+  transition: opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 

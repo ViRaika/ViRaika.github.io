@@ -88,8 +88,8 @@
     mc.classList.remove('page-first-load', 'page-in', 'page-in-active');
     mc.classList.add('page-out');
 
-    // Wait for both: exit anim (180ms) AND fetch — whichever is slower
-    var exitDone = new Promise(function(res) { setTimeout(res, 180); });
+    // Wait for both: exit anim (260ms morph) AND fetch — whichever is slower
+    var exitDone = new Promise(function(res) { setTimeout(res, 260); });
 
     Promise.all([fetchPromise, exitDone]).then(function(results) {
       var html = results[0];
