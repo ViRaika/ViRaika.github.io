@@ -78,63 +78,42 @@ body {
    PAGE TRANSITIONS
    ============================================ */
 
-/* Inner pages: fade up on enter (non-home to non-home) */
+/* Page transition — instant swap, smooth fade+rise */
 #main-content {
-  animation: pageEnter 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
-@keyframes pageEnter {
+/* Initial page load: fade up gently once */
+#main-content.page-first-load {
+  animation: pageEnterFirst 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pageEnterFirst {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Simple fade exit (inner → inner) */
-#main-content.page-leaving {
-  animation: pageLeave 0.28s ease both;
-}
-
-@keyframes pageLeave {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-10px); }
-}
-
-/* Slide in from right — entering an inner page from home */
-#main-content.slide-enter-right {
-  transform: translateX(60px);
+/* Fetch-based swap states */
+#main-content.page-out {
   opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
 }
 
-/* Slide in from left — returning home from inner */
-#main-content.slide-enter-left {
-  transform: translateX(-60px);
+#main-content.page-in {
   opacity: 0;
+  transform: translateY(10px);
+  transition: none; /* snap to start position instantly */
 }
 
-#main-content.slide-enter-active {
-  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity   0.42s cubic-bezier(0.22, 1, 0.36, 1);
-  transform: translateX(0);
+#main-content.page-in-active {
   opacity: 1;
-}
-
-/* Slide out to left — leaving home toward inner */
-#main-content.slide-exit-left {
-  animation: slideExitLeft 0.34s cubic-bezier(0.4, 0, 1, 1) both;
-}
-
-@keyframes slideExitLeft {
-  from { transform: translateX(0);    opacity: 1; }
-  to   { transform: translateX(-60px); opacity: 0; }
-}
-
-/* Slide out to right — leaving inner toward home */
-#main-content.slide-exit-right {
-  animation: slideExitRight 0.34s cubic-bezier(0.4, 0, 1, 1) both;
-}
-
-@keyframes slideExitRight {
-  from { transform: translateX(0);   opacity: 1; }
-  to   { transform: translateX(60px); opacity: 0; }
+  transform: translateY(0);
+  transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 

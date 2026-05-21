@@ -46,62 +46,128 @@
 
 <script>
 (function () {
-  var isHome = document.body.classList.contains('is-home');
-  var isInner = document.body.classList.contains('is-inner');
+  var mc = document.getElementById('main-content');
 
-  // On inner pages entering — slide in from right
-  if (isInner) {
-    var mc = document.getElementById('main-content');
-    mc.classList.add('slide-enter-right');
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        mc.classList.add('slide-enter-active');
-        mc.classList.remove('slide-enter-right');
-      });
-    });
+  // First-ever page load: gentle fade-up (no transition on revisit via swap)
+  if (!sessionStorage.getItem('vr-navigated')) {
+    mc.classList.add('page-first-load');
   }
 
-  // On home entering from inner — slide in from left
-  if (isHome && document.referrer && document.referrer !== window.location.href) {
-    var ref = document.referrer;
-    var origin = window.location.origin;
-    if (ref.startsWith(origin) && ref !== origin + '/') {
-      var mc2 = document.getElementById('main-content');
-      mc2.classList.add('slide-enter-left');
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          mc2.classList.add('slide-enter-active');
-          mc2.classList.remove('slide-enter-left');
-        });
-      });
-    }
+  // Cache for prefetched pages
+  var cache = {};
+
+  // Prefetch a URL (fire-and-forget on hover)
+  function prefetch(url) {
+    if (cache[url]) return;
+    cache[url] = fetch(url).then(function(r) { return r.text(); });
   }
 
-  // Intercept nav clicks
-  document.querySelectorAll('a[href]').forEach(function (link) {
-    var href = link.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('http')) return;
+  // Extract #main-content HTML from a fetched page string
+  function extractMain(html) {
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(html, 'text/html');
+    var newMain = doc.getElementById('main-content');
+    return newMain ? newMain.innerHTML : null;
+  }
 
-    link.addEventListener('click', function (e) {
-      e.preventDefault();
-      var dest = link.href;
-      var goingHome = (dest === window.location.origin + '/' || dest === window.location.origin + '/index.html');
-      var mc = document.getElementById('main-content');
+  // Extract <title> from fetched page
+  function extractTitle(html) {
+    var m = html.match(/<title>([^<]*)<\/title>/i);
+    return m ? m[1] : document.title;
+  }
 
-      if (isHome && !goingHome) {
-        // Home → inner: slide out to left
-        mc.classList.add('slide-exit-left');
-      } else if (isInner && goingHome) {
-        // Inner → home: slide out to right
-        mc.classList.add('slide-exit-right');
-      } else {
-        // Inner → inner: simple fade
-        mc.classList.add('page-leaving');
+  // Perform the animated swap
+  function navigateTo(url) {
+    if (url === window.location.href) return;
+
+    // Start fetching immediately (may already be cached from hover)
+    if (!cache[url]) cache[url] = fetch(url).then(function(r) { return r.text(); });
+    var fetchPromise = cache[url];
+
+    // Fade out current content
+    mc.classList.remove('page-first-load', 'page-in', 'page-in-active');
+    mc.classList.add('page-out');
+
+    // Wait for both: exit anim (180ms) AND fetch — whichever is slower
+    var exitDone = new Promise(function(res) { setTimeout(res, 180); });
+
+    Promise.all([fetchPromise, exitDone]).then(function(results) {
+      var html = results[0];
+      var newContent = extractMain(html);
+      if (!newContent) { window.location.href = url; return; }
+
+      // Swap content
+      mc.innerHTML = newContent;
+      document.title = extractTitle(html);
+      window.history.pushState({ url: url }, '', url);
+      sessionStorage.setItem('vr-navigated', '1');
+
+      // Re-run any page-specific scripts (home-animation, blog)
+      var isNowHome = (url === window.location.origin + '/' || url.endsWith('/index.html'));
+      if (isNowHome && !document._homeAnimLoaded) {
+        document._homeAnimLoaded = true;
+        var s = document.createElement('script');
+        s.src = '/assets/js/home-animation.js';
+        document.body.appendChild(s);
       }
 
-      setTimeout(function () { window.location.href = dest; }, 340);
+      // Update nav active state
+      document.querySelectorAll('.nav-link').forEach(function(a) {
+        a.classList.toggle('active', a.href === url || a.href === url.replace(/\/$/, ''));
+      });
+
+      // Animate in
+      mc.classList.remove('page-out');
+      mc.classList.add('page-in');
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          mc.classList.add('page-in-active');
+          mc.classList.remove('page-in');
+          // Scroll to top
+          window.scrollTo({ top: 0, behavior: 'instant' });
+          // Re-attach link listeners on new content
+          attachLinks();
+        });
+      });
+    }).catch(function() {
+      // Fallback: hard navigate if fetch fails
+      window.location.href = url;
     });
+  }
+
+  function isInternal(href) {
+    if (!href) return false;
+    if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return false;
+    try {
+      var u = new URL(href, window.location.href);
+      return u.origin === window.location.origin;
+    } catch(e) { return false; }
+  }
+
+  function attachLinks() {
+    document.querySelectorAll('a[href]').forEach(function(link) {
+      if (link._vrAttached) return;
+      link._vrAttached = true;
+      var href = link.getAttribute('href');
+      if (!isInternal(href)) return;
+
+      // Prefetch on hover
+      link.addEventListener('mouseenter', function() { prefetch(link.href); });
+
+      link.addEventListener('click', function(e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        navigateTo(link.href);
+      });
+    });
+  }
+
+  // Handle browser back/forward
+  window.addEventListener('popstate', function(e) {
+    navigateTo(window.location.href);
   });
+
+  attachLinks();
 })();
 </script>
 
