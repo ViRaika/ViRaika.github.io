@@ -173,8 +173,15 @@
   }
 
   function loadPageScript(url) {
+    var isHome = norm(url) === '/';
     var isBlog = norm(url).indexOf('/blog') === 0;
-    if (isBlog && !document.querySelector('script[data-page-script="blog"]')) {
+    if (isHome) {
+      var h = document.createElement('script');
+      h.src = '{{ "/assets/js/home-animation.js" | relative_url }}?t=' + Date.now();
+      h.dataset.pageScript = 'home-terrain';
+      document.body.appendChild(h);
+    }
+    if (isBlog) {
       var b = document.createElement('script');
       b.src = '{{ "/assets/js/blog.js" | relative_url }}?t=' + Date.now();
       b.dataset.pageScript = 'blog';
