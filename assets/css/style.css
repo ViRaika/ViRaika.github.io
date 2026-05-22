@@ -78,13 +78,14 @@ body {
    PAGE TRANSITIONS
    ============================================ */
 
-/* Page transition — morph fade (scale + opacity) */
+/* Page transition — View Transitions API (morph fade) */
 #main-content {
   opacity: 1;
   transform: scale(1);
   transform-origin: center top;
 }
 
+/* First load bloom */
 #main-content.page-first-load {
   animation: morphEnterFirst 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -94,24 +95,24 @@ body {
   to   { opacity: 1; transform: scale(1); }
 }
 
-#main-content.page-out {
-  opacity: 0;
-  transform: scale(0.96);
-  transition: opacity 0.26s ease, transform 0.26s ease;
-  pointer-events: none;
+/* View Transitions API — old page exit */
+::view-transition-old(root) {
+  animation: vtOldExit 0.28s cubic-bezier(0.4, 0, 1, 1) both;
 }
 
-#main-content.page-in {
-  opacity: 0;
-  transform: scale(1.03);
-  transition: none;
+/* View Transitions API — new page enter */
+::view-transition-new(root) {
+  animation: vtNewEnter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-#main-content.page-in-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+@keyframes vtOldExit {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.96); }
+}
+
+@keyframes vtNewEnter {
+  from { opacity: 0; transform: scale(1.03); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 

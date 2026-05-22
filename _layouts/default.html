@@ -46,114 +46,89 @@
 
 <script>
 (function () {
-  var mc = document.getElementById('main-content');
-
-  // First-ever page load: gentle fade-up (no transition on revisit via swap)
-  if (!sessionStorage.getItem('vr-navigated')) {
-    mc.classList.add('page-first-load');
-  }
-
-  // Cache for prefetched pages
   var cache = {};
 
-  // Prefetch a URL (fire-and-forget on hover)
   function prefetch(url) {
     if (cache[url]) return;
     cache[url] = fetch(url).then(function(r) { return r.text(); });
   }
 
-  // Extract #main-content HTML from a fetched page string
   function extractMain(html) {
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(html, 'text/html');
-    var newMain = doc.getElementById('main-content');
-    return newMain ? newMain.innerHTML : null;
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var el = doc.getElementById('main-content');
+    return el ? el.innerHTML : null;
   }
 
-  // Extract <title> from fetched page
   function extractTitle(html) {
     var m = html.match(/<title>([^<]*)<\/title>/i);
     return m ? m[1] : document.title;
   }
 
-  // Perform the animated swap
+  function updateNav(url) {
+    document.querySelectorAll('.nav-link').forEach(function(a) {
+      var norm = function(u) { return u.replace(/\/index\.html$/, '/').replace(/\/$/, ''); };
+      a.classList.toggle('active', norm(a.href) === norm(url));
+    });
+  }
+
+  function swapPage(url, html) {
+    var newContent = extractMain(html);
+    if (!newContent) { window.location.href = url; return; }
+    var mc = document.getElementById('main-content');
+    mc.innerHTML = newContent;
+    document.title = extractTitle(html);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    updateNav(url);
+    attachLinks();
+
+    // Re-init page scripts
+    var isHome = (url === window.location.origin + '/' || url.endsWith('/index.html') || url === window.location.origin);
+    if (isHome) {
+      var s = document.createElement('script');
+      s.src = '/assets/js/home-animation.js?t=' + Date.now();
+      document.body.appendChild(s);
+    }
+    var isBlog = url.includes('/blog');
+    if (isBlog) {
+      var b = document.createElement('script');
+      b.src = '/assets/js/blog.js?t=' + Date.now();
+      document.body.appendChild(b);
+    }
+  }
+
   function navigateTo(url) {
     if (url === window.location.href) return;
-
-    // Start fetching immediately (may already be cached from hover)
     if (!cache[url]) cache[url] = fetch(url).then(function(r) { return r.text(); });
-    var fetchPromise = cache[url];
 
-    // Fade out current content
-    mc.classList.remove('page-first-load', 'page-in', 'page-in-active');
-    mc.classList.add('page-out');
-
-    // Wait for both: exit anim (260ms morph) AND fetch — whichever is slower
-    var exitDone = new Promise(function(res) { setTimeout(res, 260); });
-
-    Promise.all([fetchPromise, exitDone]).then(function(results) {
-      var html = results[0];
-      var newContent = extractMain(html);
-      if (!newContent) { window.location.href = url; return; }
-
-      // Swap content
-      mc.innerHTML = newContent;
-      document.title = extractTitle(html);
-      window.history.pushState({ url: url }, '', url);
-      sessionStorage.setItem('vr-navigated', '1');
-
-      // Re-run any page-specific scripts (home-animation, blog)
-      var isNowHome = (url === window.location.origin + '/' || url.endsWith('/index.html'));
-      if (isNowHome && !document._homeAnimLoaded) {
-        document._homeAnimLoaded = true;
-        var s = document.createElement('script');
-        s.src = '/assets/js/home-animation.js';
-        document.body.appendChild(s);
-      }
-
-      // Update nav active state
-      document.querySelectorAll('.nav-link').forEach(function(a) {
-        a.classList.toggle('active', a.href === url || a.href === url.replace(/\/$/, ''));
-      });
-
-      // Animate in
-      mc.classList.remove('page-out');
-      mc.classList.add('page-in');
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          mc.classList.add('page-in-active');
-          mc.classList.remove('page-in');
-          // Scroll to top
-          window.scrollTo({ top: 0, behavior: 'instant' });
-          // Re-attach link listeners on new content
-          attachLinks();
+    cache[url].then(function(html) {
+      // View Transitions API — GPU composited, zero JS timing jank
+      if (document.startViewTransition) {
+        var t = document.startViewTransition(function() {
+          swapPage(url, html);
+          window.history.pushState({}, '', url);
         });
-      });
+      } else {
+        // Fallback for older browsers
+        swapPage(url, html);
+        window.history.pushState({}, '', url);
+      }
     }).catch(function() {
-      // Fallback: hard navigate if fetch fails
       window.location.href = url;
     });
   }
 
   function isInternal(href) {
-    if (!href) return false;
-    if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return false;
-    try {
-      var u = new URL(href, window.location.href);
-      return u.origin === window.location.origin;
-    } catch(e) { return false; }
+    if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return false;
+    try { return new URL(href, location.href).origin === location.origin; }
+    catch(e) { return false; }
   }
 
   function attachLinks() {
     document.querySelectorAll('a[href]').forEach(function(link) {
       if (link._vrAttached) return;
       link._vrAttached = true;
-      var href = link.getAttribute('href');
-      if (!isInternal(href)) return;
-
-      // Prefetch on hover
+      if (!isInternal(link.getAttribute('href'))) return;
       link.addEventListener('mouseenter', function() { prefetch(link.href); });
-
       link.addEventListener('click', function(e) {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         e.preventDefault();
@@ -162,11 +137,7 @@
     });
   }
 
-  // Handle browser back/forward
-  window.addEventListener('popstate', function(e) {
-    navigateTo(window.location.href);
-  });
-
+  window.addEventListener('popstate', function() { navigateTo(location.href); });
   attachLinks();
 })();
 </script>
