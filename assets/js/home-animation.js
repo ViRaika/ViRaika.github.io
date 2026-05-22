@@ -122,29 +122,23 @@
     });
   }
 
-  function glassGeometry() {
+  function glassGeometry(t) {
     var w = window.innerWidth < 900 ? 130 : 205;
     var h = window.innerWidth < 900 ? 118 : 185;
-    var el = document.getElementById('glass');
-    if (el && el.offsetParent) {
-      return {
-        x: el.offsetLeft,
-        y: el.offsetTop,
-        w: el.offsetWidth || w,
-        h: el.offsetHeight || h,
-        cx: el.offsetLeft + (el.offsetWidth || w) * 0.5,
-        cy: el.offsetTop + (el.offsetHeight || h) * 0.5
-      };
-    }
-    return { x: W * 0.55 - w * 0.5, y: H * 0.24 - h * 0.5, w: w, h: h, cx: W * 0.55, cy: H * 0.24 };
+    return {
+      w: w,
+      h: h,
+      cx: W * (0.50 + 0.07 * Math.sin(t * 0.24 + 1.6)),
+      cy: H * (0.48 + 0.06 * Math.cos(t * 0.20 + 0.9))
+    };
   }
 
   function animatedPeak(peak, t) {
     return {
-      x: peak.x + peak.driftA * Math.sin(t * peak.driftSx + peak.phase),
-      y: peak.y + peak.driftB * Math.cos(t * peak.driftSy + peak.phase * 0.73),
-      amp: peak.amp * (1 + 0.115 * Math.sin(t * 0.50 + peak.x * 9.1 + peak.y * 6.3 + peak.phase)),
-      sig: peak.sig * (1 + 0.070 * Math.sin(t * 0.38 + peak.widthPhase))
+      x: peak.x,
+      y: peak.y,
+      amp: peak.amp * (1 + 0.06 * Math.sin(t * 0.35 + peak.x * 9.1 + peak.y * 6.3)),
+      sig: peak.sig
     };
   }
 
@@ -197,13 +191,24 @@
 
     var fillA = sharp ? 0.82 + h * 0.16 : 0.72 + h * 0.18;
     var strokeA = sharp ? 0.38 + h * 0.54 : 0.20 + h * 0.38;
+    if (sharp) {
+      r = Math.min(255, r + 18);
+      g = Math.min(255, g + 18);
+      b = Math.min(255, b + 18);
+      fillA = Math.min(1, fillA + 0.12);
+    }
+    var sr = mix(168, 255, Math.max(p, hot));
+    var sg = mix(84, 234, Math.max(p, hot));
+    var sb = mix(40, 195, hot);
+    if (sharp) {
+      sr = Math.min(255, sr + 28);
+      sg = Math.min(255, sg + 28);
+      sb = Math.min(255, sb + 28);
+      strokeA = Math.min(1, strokeA + 0.18);
+    }
     return {
       fill: 'rgba(' + r + ',' + g + ',' + b + ',' + fillA.toFixed(3) + ')',
-      stroke: 'rgba(' +
-        mix(168, 255, Math.max(p, hot)) + ',' +
-        mix(84, 234, Math.max(p, hot)) + ',' +
-        mix(40, 195, hot) + ',' +
-        strokeA.toFixed(3) + ')'
+      stroke: 'rgba(' + sr + ',' + sg + ',' + sb + ',' + strokeA.toFixed(3) + ')'
     };
   }
 
@@ -338,7 +343,7 @@
 
     if (!paused) {
       var base = baseGeometry();
-      var glass = glassGeometry();
+      var glass = glassGeometry(t);
       var iso = isoFromBase(base);
       var brx = base.w * 0.50;
       var bry = base.h * 0.46;
@@ -359,11 +364,28 @@
       ctx.restore();
 
       ctx.save();
+      ctx.filter = 'blur(32px)';
+      ctx.globalAlpha = 0.22;
+      traceBlob(ctx, base.cx, base.cy, brx, bry, blobMorph, t);
+      ctx.fillStyle = 'rgba(192, 82, 42, 0.65)';
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
       traceBlob(ctx, base.cx, base.cy, brx, bry, blobMorph, t);
       ctx.clip();
-      ctx.filter = 'blur(8px)';
+      ctx.filter = 'blur(16px)';
       ctx.globalAlpha = 0.96;
       ctx.drawImage(terrainCanvas, 0, 0, W, H);
+      ctx.restore();
+
+      ctx.save();
+      traceBlob(ctx, base.cx, base.cy, brx, bry, blobMorph, t);
+      ctx.clip();
+      traceBlob(ctx, glass.cx, glass.cy, grx, gry, glassMorph, t);
+      ctx.clip();
+      ctx.fillStyle = 'rgba(40, 22, 8, 0.50)';
+      ctx.fillRect(0, 0, W, H);
       ctx.restore();
 
       ctx.save();
