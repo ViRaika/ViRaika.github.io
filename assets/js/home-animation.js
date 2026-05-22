@@ -411,6 +411,21 @@ function drawGlassSurface(glass, t) {
       ctx.globalAlpha = 0.96;
       ctx.drawImage(terrainCanvas, 0, 0, W, H);
       ctx.restore();
+      
+      // Soft-erase the hard blob edge — destination-out radial fade
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      var edgeFade = ctx.createRadialGradient(
+        base.cx, base.cy, Math.min(brx, bry) * 0.70,
+        base.cx, base.cy, Math.max(brx, bry) * 1.05
+      );
+      edgeFade.addColorStop(0,   'rgba(0,0,0,0)');
+      edgeFade.addColorStop(0.72,'rgba(0,0,0,0)');
+      edgeFade.addColorStop(0.88,'rgba(0,0,0,0.55)');
+      edgeFade.addColorStop(1,   'rgba(0,0,0,1)');
+      ctx.fillStyle = edgeFade;
+      ctx.fillRect(base.cx - brx * 1.5, base.cy - bry * 1.6, brx * 3.0, bry * 3.2);
+      ctx.restore();
 
       ctx.save();
       traceBlob(ctx, base.cx, base.cy, brx, bry, blobMorph, t);
