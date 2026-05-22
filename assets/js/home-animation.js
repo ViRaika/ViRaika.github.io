@@ -7,6 +7,8 @@
   var ctx = canvas.getContext('2d', { alpha: true });
   var terrainCanvas = document.createElement('canvas');
   var terrainCtx = terrainCanvas.getContext('2d', { alpha: true });
+  var fadeCanvas = document.createElement('canvas');
+  var fadeCtx = fadeCanvas.getContext('2d', { alpha: true });
 
   var raf = 0;
   var resizeTimer = 0;
@@ -48,6 +50,15 @@
     });
   }
 
+  for (var p = 0; p < peaks.length; p++) {
+    peaks[p].phase = rng() * Math.PI * 2;
+    peaks[p].driftA = 0.006 + rng() * 0.010;
+    peaks[p].driftB = 0.006 + rng() * 0.010;
+    peaks[p].driftSx = 0.105 + rng() * 0.065;
+    peaks[p].driftSy = 0.095 + rng() * 0.060;
+    peaks[p].widthPhase = rng() * Math.PI * 2;
+  }
+
   function rebuildCells() {
     cells = [];
     for (var j = 0; j < GRID; j++) {
@@ -75,16 +86,18 @@
     canvas.height = Math.round(H * DPR);
     terrainCanvas.width = canvas.width;
     terrainCanvas.height = canvas.height;
+    fadeCanvas.width = canvas.width;
+    fadeCanvas.height = canvas.height;
 
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     terrainCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    fadeCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
     rebuildCells();
   }
 
   function localRect(selector, fallback) {
     var el = document.querySelector(selector);
     if (!el) return fallback;
-
     var er = el.getBoundingClientRect();
     var cr = canvas.getBoundingClientRect();
     return {
@@ -123,27 +136,38 @@
         cy: el.offsetTop + (el.offsetHeight || h) * 0.5
       };
     }
+    return { x: W * 0.55 - w * 0.5, y: H * 0.24 - h * 0.5, w: w, h: h, cx: W * 0.55, cy: H * 0.24 };
+  }
+
+  function animatedPeak(peak, t) {
     return {
-      x: W * 0.55 - w * 0.5,
-      y: H * 0.24 - h * 0.5,
-      w: w,
-      h: h,
-      cx: W * 0.55,
-      cy: H * 0.24
+      x: peak.x + peak.driftA * Math.sin(t * peak.driftSx + peak.phase),
+      y: peak.y + peak.driftB * Math.cos(t * peak.driftSy + peak.phase * 0.73),
+      amp: peak.amp * (1 + 0.115 * Math.sin(t * 0.50 + peak.x * 9.1 + peak.y * 6.3 + peak.phase)),
+      sig: peak.sig * (1 + 0.070 * Math.sin(t * 0.38 + peak.widthPhase))
     };
   }
 
   function surfaceHeight(u, v, t) {
     var h = 0;
     for (var i = 0; i < peaks.length; i++) {
-      var p = peaks[i];
+      var p = animatedPeak(peaks[i], t);
       var dx = u - p.x;
       var dy = v - p.y;
-      var dist2 = dx * dx + dy * dy;
-      var breath = 1 + 0.06 * Math.sin(t * 0.35 + p.x * 9.1 + p.y * 6.3);
-      h += p.amp * breath * Math.exp(-dist2 / (2 * p.sig * p.sig));
+      h += p.amp * Math.exp(-(dx * dx + dy * dy) / (2 * p.sig * p.sig));
     }
     return Math.min(h, 1);
+  }
+
+  function isoFromBase(base) {
+    var s = Math.min(base.w, base.h);
+    return {
+      cx: base.cx,
+      cy: base.cy + s * 0.055,
+      tileW: s * 0.0206,
+      tileH: s * 0.0113,
+      peakH: s * 0.205
+    };
   }
 
   function isoProject(u, v, h, iso) {
@@ -155,35 +179,30 @@
     };
   }
 
-  function isoFromBase(base) {
-    var s = Math.min(base.w, base.h);
-    return {
-      cx: base.cx,
-      cy: base.cy + s * 0.055,
-      tileW: s * 0.0206,
-      tileH: s * 0.0113,
-      peakH: s * 0.178
-    };
-  }
-
   function mix(a, b, t) {
     return Math.round(a + (b - a) * t);
   }
 
   function colorForHeight(h, sharp) {
-    var p = Math.pow(h, 0.78);
-    var fillA = sharp ? 0.78 + h * 0.18 : 0.64 + h * 0.22;
-    var strokeA = sharp ? 0.36 + h * 0.54 : 0.22 + h * 0.42;
+    var p = Math.pow(Math.max(0, h), 0.58);
+    var hot = Math.pow(Math.max(0, h - 0.42) / 0.58, 1.25);
+    var r = mix(82, 222, p);
+    var g = mix(38, 126, p);
+    var b = mix(18, 58, p);
+    if (hot > 0) {
+      r = mix(r, 255, hot);
+      g = mix(g, 224, hot);
+      b = mix(b, 170, hot);
+    }
+
+    var fillA = sharp ? 0.82 + h * 0.16 : 0.72 + h * 0.18;
+    var strokeA = sharp ? 0.38 + h * 0.54 : 0.20 + h * 0.38;
     return {
-      fill: 'rgba(' +
-        mix(92, 248, p) + ',' +
-        mix(42, 196, p) + ',' +
-        mix(20, 142, p) + ',' +
-        fillA.toFixed(3) + ')',
+      fill: 'rgba(' + r + ',' + g + ',' + b + ',' + fillA.toFixed(3) + ')',
       stroke: 'rgba(' +
-        mix(173, 248, p) + ',' +
-        mix(94, 228, p) + ',' +
-        mix(49, 201, p) + ',' +
+        mix(168, 255, Math.max(p, hot)) + ',' +
+        mix(84, 234, Math.max(p, hot)) + ',' +
+        mix(40, 195, hot) + ',' +
         strokeA.toFixed(3) + ')'
     };
   }
@@ -197,30 +216,8 @@
     target.closePath();
   }
 
-  function drawTerrainCell(cell, t, iso, sharp) {
-    var h00 = surfaceHeight(cell.u0, cell.v0, t);
-    var h10 = surfaceHeight(cell.u1, cell.v0, t);
-    var h01 = surfaceHeight(cell.u0, cell.v1, t);
-    var h11 = surfaceHeight(cell.u1, cell.v1, t);
-    var hi = Math.max(h00, h10, h01, h11);
-    var col = colorForHeight(hi, sharp);
-    var pts = [
-      isoProject(cell.u0, cell.v0, h00, iso),
-      isoProject(cell.u1, cell.v0, h10, iso),
-      isoProject(cell.u1, cell.v1, h11, iso),
-      isoProject(cell.u0, cell.v1, h01, iso)
-    ];
-
-    traceCell(terrainCtx, pts);
-    terrainCtx.fillStyle = col.fill;
-    terrainCtx.strokeStyle = col.stroke;
-    terrainCtx.lineWidth = sharp ? 0.72 : 0.45;
-    terrainCtx.fill();
-    terrainCtx.stroke();
-  }
-
   function traceBlob(target, cx, cy, rx, ry, morph, t) {
-    var steps = 110;
+    var steps = 112;
     target.beginPath();
     for (var i = 0; i <= steps; i++) {
       var a = (i / steps) * Math.PI * 2;
@@ -247,19 +244,63 @@
     { amp: 0.04, freq: 3, sp: 0.12, ph: 0.6 }
   ];
 
-  function renderTerrain(t, iso) {
+  function drawTerrainCell(cell, t, iso, sharp) {
+    var h00 = surfaceHeight(cell.u0, cell.v0, t);
+    var h10 = surfaceHeight(cell.u1, cell.v0, t);
+    var h01 = surfaceHeight(cell.u0, cell.v1, t);
+    var h11 = surfaceHeight(cell.u1, cell.v1, t);
+    var hi = Math.max(h00, h10, h01, h11);
+    var col = colorForHeight(hi, sharp);
+    var pts = [
+      isoProject(cell.u0, cell.v0, h00, iso),
+      isoProject(cell.u1, cell.v0, h10, iso),
+      isoProject(cell.u1, cell.v1, h11, iso),
+      isoProject(cell.u0, cell.v1, h01, iso)
+    ];
+
+    traceCell(terrainCtx, pts);
+    terrainCtx.fillStyle = col.fill;
+    terrainCtx.strokeStyle = col.stroke;
+    terrainCtx.lineWidth = sharp ? 0.82 : 0.48;
+    terrainCtx.fill();
+    terrainCtx.stroke();
+  }
+
+  function applyTerrainFade(base, t) {
+    var brx = base.w * 0.50;
+    var bry = base.h * 0.46;
+    fadeCtx.clearRect(0, 0, W, H);
+    fadeCtx.save();
+    traceBlob(fadeCtx, base.cx, base.cy, brx, bry, blobMorph, t);
+    fadeCtx.clip();
+    var grad = fadeCtx.createRadialGradient(base.cx, base.cy, Math.min(brx, bry) * 0.18, base.cx, base.cy, Math.max(brx, bry) * 1.02);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.58, 'rgba(255,255,255,0.96)');
+    grad.addColorStop(0.82, 'rgba(255,255,255,0.58)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    fadeCtx.fillStyle = grad;
+    fadeCtx.fillRect(base.cx - brx * 1.2, base.cy - bry * 1.3, brx * 2.4, bry * 2.6);
+    fadeCtx.restore();
+
+    terrainCtx.save();
+    terrainCtx.globalCompositeOperation = 'destination-in';
+    terrainCtx.drawImage(fadeCanvas, 0, 0, W, H);
+    terrainCtx.restore();
+  }
+
+  function renderTerrain(t, iso, base) {
     terrainCtx.clearRect(0, 0, W, H);
     terrainCtx.save();
     for (var i = 0; i < cells.length; i++) {
       drawTerrainCell(cells[i], t, iso, true);
     }
     terrainCtx.restore();
+    applyTerrainFade(base, t);
   }
 
   function drawGlassSurface(glass, t) {
     var rx = glass.w * 0.50;
     var ry = glass.h * 0.50;
-
     ctx.save();
     traceBlob(ctx, glass.cx, glass.cy, rx, ry, glassMorph, t);
     var fill = ctx.createLinearGradient(glass.cx - rx, glass.cy - ry, glass.cx + rx, glass.cy + ry);
@@ -270,23 +311,16 @@
     ctx.fill();
 
     traceBlob(ctx, glass.cx, glass.cy, rx, ry, glassMorph, t);
-    ctx.strokeStyle = 'rgba(255,248,236,0.28)';
+    ctx.strokeStyle = 'rgba(255,248,236,0.30)';
     ctx.lineWidth = 1.05;
     ctx.stroke();
 
     ctx.beginPath();
     ctx.moveTo(glass.cx - rx * 0.52, glass.cy - ry * 0.48);
-    ctx.bezierCurveTo(
-      glass.cx - rx * 0.30,
-      glass.cy - ry * 0.75,
-      glass.cx + rx * 0.18,
-      glass.cy - ry * 0.68,
-      glass.cx + rx * 0.36,
-      glass.cy - ry * 0.36
-    );
+    ctx.bezierCurveTo(glass.cx - rx * 0.30, glass.cy - ry * 0.75, glass.cx + rx * 0.18, glass.cy - ry * 0.68, glass.cx + rx * 0.36, glass.cy - ry * 0.36);
     ctx.shadowColor = 'rgba(255,255,255,0.28)';
     ctx.shadowBlur = 5;
-    ctx.strokeStyle = 'rgba(255,255,255,0.52)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.54)';
     ctx.lineWidth = 2.2;
     ctx.lineCap = 'round';
     ctx.stroke();
@@ -311,28 +345,30 @@
       var grx = glass.w * 0.50;
       var gry = glass.h * 0.50;
 
-      renderTerrain(t, iso);
-
+      renderTerrain(t, iso, base);
       ctx.clearRect(0, 0, W, H);
 
       ctx.save();
-      var amb = ctx.createRadialGradient(base.cx, base.cy, 0, base.cx, base.cy, Math.max(brx, bry) * 1.55);
-      amb.addColorStop(0, 'rgba(192,82,42,0.30)');
-      amb.addColorStop(0.55, 'rgba(232,196,160,0.12)');
-      amb.addColorStop(1, 'rgba(192,82,42,0)');
+      var amb = ctx.createRadialGradient(base.cx, base.cy - bry * 0.12, 0, base.cx, base.cy, Math.max(brx, bry) * 1.32);
+      amb.addColorStop(0, 'rgba(248,196,142,0.36)');
+      amb.addColorStop(0.45, 'rgba(192,82,42,0.22)');
+      amb.addColorStop(0.78, 'rgba(92,42,20,0.12)');
+      amb.addColorStop(1, 'rgba(92,42,20,0)');
       ctx.fillStyle = amb;
-      ctx.fillRect(base.cx - brx * 1.7, base.cy - bry * 1.7, brx * 3.4, bry * 3.4);
+      ctx.fillRect(base.cx - brx * 1.45, base.cy - bry * 1.55, brx * 2.9, bry * 3.1);
       ctx.restore();
 
       ctx.save();
       traceBlob(ctx, base.cx, base.cy, brx, bry, blobMorph, t);
       ctx.clip();
-      ctx.filter = 'blur(12px)';
-      ctx.globalAlpha = 0.98;
+      ctx.filter = 'blur(8px)';
+      ctx.globalAlpha = 0.96;
       ctx.drawImage(terrainCanvas, 0, 0, W, H);
       ctx.restore();
 
       ctx.save();
+      traceBlob(ctx, base.cx, base.cy, brx, bry, blobMorph, t);
+      ctx.clip();
       traceBlob(ctx, glass.cx, glass.cy, grx, gry, glassMorph, t);
       ctx.clip();
       ctx.filter = 'none';
@@ -369,7 +405,6 @@
   window.__vrHomeTerrainStop = cleanup;
   window.addEventListener('resize', onResize);
   document.addEventListener('visibilitychange', onVisibility);
-
   resize();
   raf = requestAnimationFrame(drawFrame);
 })();
