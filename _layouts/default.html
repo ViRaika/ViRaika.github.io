@@ -23,7 +23,8 @@
 
 <nav>
   <div class="nav-logo"></div>
-  <ul class="nav-links">
+  <ul class="nav-links" data-nav-links>
+    <li class="nav-indicator" aria-hidden="true"></li>
     <li><a href="{{ '/' | relative_url }}" class="nav-link {% if page.url == '/' %}active{% endif %}">Home</a></li>
     <li><a href="{{ '/blog/' | relative_url }}" class="nav-link {% if page.url contains '/blog' %}active{% endif %}">Blog</a></li>
     <li><a href="{{ '/projects/' | relative_url }}" class="nav-link {% if page.url contains '/projects' %}active{% endif %}">Projects</a></li>
@@ -47,6 +48,10 @@
 <script>
 (function () {
   var cache = {};
+  var transitionMs = 560;
+  var navOrder = ['/', '/blog', '/projects', '/contact', '/resume'];
+  var glassRaf = null;
+  var currentUrl = window.location.href;
 
   function prefetch(url) {
     if (cache[url]) return;
@@ -64,54 +69,192 @@
     return m ? m[1] : document.title;
   }
 
-  function updateNav(url) {
-    document.querySelectorAll('.nav-link').forEach(function(a) {
-      var norm = function(u) { return u.replace(/\/index\.html$/, '/').replace(/\/$/, ''); };
-      a.classList.toggle('active', norm(a.href) === norm(url));
-    });
+  function extractBodyClass(html) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body ? doc.body.className : '';
   }
 
-  function swapPage(url, html) {
-    var newContent = extractMain(html);
-    if (!newContent) { window.location.href = url; return; }
-    var mc = document.getElementById('main-content');
-    mc.innerHTML = newContent;
-    document.title = extractTitle(html);
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    updateNav(url);
-    attachLinks();
+  function norm(u) {
+    var parsed = new URL(u, location.origin);
+    var path = parsed.pathname.replace(/\/index\.html$/, '/').replace(/\/$/, '');
+    return path || '/';
+  }
 
-    // Re-init page scripts
-    var isHome = (url === window.location.origin + '/' || url.endsWith('/index.html') || url === window.location.origin);
-    if (isHome) {
-      var s = document.createElement('script');
-      s.src = '/assets/js/home-animation.js?t=' + Date.now();
-      document.body.appendChild(s);
+  function navIndex(url) {
+    var path = norm(url);
+    if (path.indexOf('/blog') === 0) return 1;
+    for (var i = 0; i < navOrder.length; i++) {
+      if (path === navOrder[i]) return i;
     }
-    var isBlog = url.includes('/blog');
-    if (isBlog) {
+    return 0;
+  }
+
+  function moveNavIndicator() {
+    var links = document.querySelector('[data-nav-links]');
+    var active = document.querySelector('.nav-link.active');
+    var indicator = document.querySelector('.nav-indicator');
+    if (!links || !active || !indicator) return;
+
+    var linksRect = links.getBoundingClientRect();
+    var activeRect = active.getBoundingClientRect();
+    indicator.style.width = activeRect.width + 'px';
+    indicator.style.transform = 'translate3d(' + (activeRect.left - linksRect.left) + 'px, 0, 0)';
+    indicator.style.opacity = '1';
+  }
+
+  function updateNav(url) {
+    document.querySelectorAll('.nav-link').forEach(function(a) {
+      var target = norm(a.href);
+      var current = norm(url);
+      var isActive = target === current || (target === '/blog' && current.indexOf('/blog') === 0);
+      a.classList.toggle('active', isActive);
+    });
+    requestAnimationFrame(moveNavIndicator);
+  }
+
+  function initHomeGlass() {
+    var glass = document.getElementById('glass');
+    if (!glass) {
+      if (glassRaf) cancelAnimationFrame(glassRaf);
+      glassRaf = null;
+      return;
+    }
+
+    if (glass.dataset.orbitReady === 'true') return;
+    glass.dataset.orbitReady = 'true';
+    if (glassRaf) cancelAnimationFrame(glassRaf);
+
+    var GW = 195, GH = 172;
+    var targetAngle = 0, currentAngle = 0, angularVelocity = 0;
+    var SPRING = 0.012, DAMPING = 0.88, BASE_SPEED = 0.008;
+    var last = null;
+
+    function getBlobCenter() {
+      var right = document.querySelector('.vr-home-right');
+      if (!right) return { x: 300, y: 300 };
+      var r = right.getBoundingClientRect();
+      var blobW = Math.min(r.height * 0.55, 420);
+      var cx = r.width * 0.5 + blobW * (0.5 - 0.38);
+      var cy = r.height * 0.5;
+      return { x: cx, y: cy };
+    }
+
+    function orbitRadius(a) {
+      return 155 + 24 * Math.sin(2 * a + 0.5) + 16 * Math.sin(3 * a + 1.2) + 9 * Math.sin(5 * a - 0.8);
+    }
+
+    function tick(ts) {
+      if (!document.body.contains(glass)) {
+        glassRaf = null;
+        return;
+      }
+      if (!last) last = ts;
+      var dt = Math.min(ts - last, 32);
+      last = ts;
+
+      targetAngle += BASE_SPEED * (dt / 16.67);
+      var diff = targetAngle - currentAngle;
+      angularVelocity += diff * SPRING;
+      angularVelocity *= DAMPING;
+      currentAngle += angularVelocity;
+
+      var r = orbitRadius(currentAngle);
+      var c = getBlobCenter();
+      var x = c.x + r * Math.cos(currentAngle) - GW / 2;
+      var y = c.y + r * Math.sin(currentAngle) - GH / 2;
+      glass.style.left = x + 'px';
+      glass.style.top = y + 'px';
+      glass.style.transform = 'rotate(' + ((currentAngle * 180 / Math.PI) + 90) + 'deg)';
+
+      glassRaf = requestAnimationFrame(tick);
+    }
+
+    glassRaf = requestAnimationFrame(tick);
+  }
+
+  function loadPageScript(url) {
+    var isBlog = norm(url).indexOf('/blog') === 0;
+    if (isBlog && !document.querySelector('script[data-page-script="blog"]')) {
       var b = document.createElement('script');
-      b.src = '/assets/js/blog.js?t=' + Date.now();
+      b.src = '{{ "/assets/js/blog.js" | relative_url }}?t=' + Date.now();
+      b.dataset.pageScript = 'blog';
       document.body.appendChild(b);
     }
   }
 
-  function navigateTo(url) {
-    if (url === window.location.href) return;
+  function finishSwap(mc, newContent, url, html) {
+    mc.classList.remove('is-transitioning');
+    mc.style.minHeight = '';
+    mc.innerHTML = newContent;
+    document.body.className = extractBodyClass(html);
+    attachLinks();
+    initHomeGlass();
+    loadPageScript(url);
+  }
+
+  function swapPage(url, html, direction) {
+    var newContent = extractMain(html);
+    if (!newContent) { window.location.href = url; return; }
+    var mc = document.getElementById('main-content');
+    var oldContent = mc.innerHTML;
+
+    document.title = extractTitle(html);
+    updateNav(url);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      mc.innerHTML = newContent;
+      document.body.className = extractBodyClass(html);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      attachLinks();
+      initHomeGlass();
+      loadPageScript(url);
+      return;
+    }
+
+    var oldView = document.createElement('div');
+    var newView = document.createElement('div');
+    oldView.className = 'page-transition-view page-transition-old';
+    newView.className = 'page-transition-view page-transition-new';
+    oldView.innerHTML = oldContent;
+    newView.innerHTML = newContent;
+
+    mc.style.minHeight = Math.max(mc.offsetHeight, window.innerHeight) + 'px';
+    mc.classList.add('is-transitioning');
+    mc.innerHTML = '';
+    mc.appendChild(oldView);
+    mc.appendChild(newView);
+
+    window.scrollTo({ top: 0, behavior: 'auto' });
+
+    var offset = direction >= 0 ? 56 : -56;
+    oldView.style.transform = 'translate3d(0, 0, 0)';
+    newView.style.transform = 'translate3d(' + offset + 'px, 0, 0)';
+    newView.style.opacity = '0.01';
+
+    requestAnimationFrame(function() {
+      oldView.style.transform = 'translate3d(' + (-offset) + 'px, 0, 0)';
+      oldView.style.opacity = '0.01';
+      newView.style.transform = 'translate3d(0, 0, 0)';
+      newView.style.opacity = '1';
+    });
+
+    window.setTimeout(function() {
+      finishSwap(mc, newContent, url, html);
+    }, transitionMs);
+  }
+
+  function navigateTo(url, options) {
+    options = options || {};
+    if (url === currentUrl) return;
     if (!cache[url]) cache[url] = fetch(url).then(function(r) { return r.text(); });
+    var direction = navIndex(url) >= navIndex(currentUrl) ? 1 : -1;
 
     cache[url].then(function(html) {
-      // View Transitions API — GPU composited, zero JS timing jank
-      if (document.startViewTransition) {
-        var t = document.startViewTransition(function() {
-          swapPage(url, html);
-          window.history.pushState({}, '', url);
-        });
-      } else {
-        // Fallback for older browsers
-        swapPage(url, html);
+      swapPage(url, html, direction);
+      if (!options.replace) {
         window.history.pushState({}, '', url);
       }
+      currentUrl = url;
     }).catch(function() {
       window.location.href = url;
     });
@@ -137,8 +280,11 @@
     });
   }
 
-  window.addEventListener('popstate', function() { navigateTo(location.href); });
+  window.addEventListener('popstate', function() { navigateTo(location.href, { replace: true }); });
+  window.addEventListener('resize', moveNavIndicator);
   attachLinks();
+  moveNavIndicator();
+  initHomeGlass();
 })();
 </script>
 
