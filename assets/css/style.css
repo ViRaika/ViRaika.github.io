@@ -841,7 +841,7 @@ main {
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 2;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -854,14 +854,11 @@ main {
   width: min(54vh, 460px);
   height: min(54vh, 460px);
 
-  /* Deep blue — the terrain's color palette lives here */
-  background: radial-gradient(
-    circle at 32% 28%,
-    #1a3a8a 0%,
-    #0c2060 40%,
-    #061240 72%,
-    #030920 100%
-  );
+  background: transparent;
+  border-radius: 62% 38% 51% 49% / 48% 52% 47% 53%;
+  animation: premiumDrift 22s cubic-bezier(0.42, 0.05, 0.28, 1) infinite;
+  box-shadow: none;
+}
 
   border-radius: 62% 38% 51% 49% / 48% 52% 47% 53%;
   animation: premiumDrift 22s cubic-bezier(0.42, 0.05, 0.28, 1) infinite;
@@ -909,7 +906,7 @@ main {
 
   border: 1px solid rgba(255, 255, 255, 0.18);
   opacity: 0.96;
-  z-index: 3; /* above canvas */
+  z-index: 2; /* above canvas */
   pointer-events: none;
 
   box-shadow:
