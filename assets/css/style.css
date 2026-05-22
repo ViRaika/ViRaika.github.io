@@ -115,6 +115,14 @@ body {
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* Blobs get their own transition layer — no animation applied, they just persist */
+::view-transition-old(blob-base),
+::view-transition-new(blob-base),
+::view-transition-old(blob-glass),
+::view-transition-new(blob-glass) {
+  animation: none;
+}
+
 
 /* ============================================
    NAV
@@ -827,7 +835,9 @@ main {
 }
 
 /* === PREMIUM BASE BLOB === */
+/* Excluded from view-transition capture so animation never freezes */
 .vr-base-blob {
+  view-transition-name: blob-base;
   position: absolute;
   top: 50%;
   left: 52%;
@@ -859,6 +869,7 @@ main {
 
 /* === PREMIUM GLASS BLOB === */
 .vr-glass-blob {
+  view-transition-name: blob-glass;
   position: absolute;
   top: 24%;
   left: 55%;
