@@ -303,34 +303,67 @@
     applyTerrainFade(base, t);
   }
 
-  function drawGlassSurface(glass, t) {
-    var rx = glass.w * 0.50;
-    var ry = glass.h * 0.50;
-    ctx.save();
-    traceBlob(ctx, glass.cx, glass.cy, rx, ry, glassMorph, t);
-    var fill = ctx.createLinearGradient(glass.cx - rx, glass.cy - ry, glass.cx + rx, glass.cy + ry);
-    fill.addColorStop(0, 'rgba(255,255,255,0.12)');
-    fill.addColorStop(0.45, 'rgba(255,255,255,0.030)');
-    fill.addColorStop(1, 'rgba(255,255,255,0.006)');
-    ctx.fillStyle = fill;
-    ctx.fill();
+function drawGlassSurface(glass, t) {
+  var rx = glass.w * 0.50;
+  var ry = glass.h * 0.50;
+  ctx.save();
 
-    traceBlob(ctx, glass.cx, glass.cy, rx, ry, glassMorph, t);
-    ctx.strokeStyle = 'rgba(255,248,236,0.30)';
-    ctx.lineWidth = 1.05;
-    ctx.stroke();
+  // --- Layer 1: curved-glass radial fill (light hitting top-left of a dome) ---
+  traceBlob(ctx, glass.cx, glass.cy, rx, ry, glassMorph, t);
+  var dome = ctx.createRadialGradient(
+    glass.cx - rx * 0.28, glass.cy - ry * 0.32, rx * 0.05,
+    glass.cx + rx * 0.10, glass.cy + ry * 0.10, rx * 1.15
+  );
+  dome.addColorStop(0,   'rgba(255, 248, 230, 0.18)');
+  dome.addColorStop(0.38,'rgba(255, 240, 210, 0.07)');
+  dome.addColorStop(0.72,'rgba(200, 140,  80, 0.04)');
+  dome.addColorStop(1,   'rgba(120,  60,  20, 0.08)');
+  ctx.fillStyle = dome;
+  ctx.fill();
 
-    ctx.beginPath();
-    ctx.moveTo(glass.cx - rx * 0.52, glass.cy - ry * 0.48);
-    ctx.bezierCurveTo(glass.cx - rx * 0.30, glass.cy - ry * 0.75, glass.cx + rx * 0.18, glass.cy - ry * 0.68, glass.cx + rx * 0.36, glass.cy - ry * 0.36);
-    ctx.shadowColor = 'rgba(255,255,255,0.28)';
-    ctx.shadowBlur = 5;
-    ctx.strokeStyle = 'rgba(255,255,255,0.54)';
-    ctx.lineWidth = 2.2;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    ctx.restore();
-  }
+  // --- Layer 2: outer rim ---
+  traceBlob(ctx, glass.cx, glass.cy, rx, ry, glassMorph, t);
+  ctx.strokeStyle = 'rgba(255, 240, 210, 0.32)';
+  ctx.lineWidth = 1.1;
+  ctx.stroke();
+
+  // --- Layer 3: inner rim (glass thickness) ---
+  traceBlob(ctx, glass.cx, glass.cy, rx * 0.93, ry * 0.93, glassMorph, t);
+  ctx.strokeStyle = 'rgba(255, 220, 160, 0.10)';
+  ctx.lineWidth = 1.0;
+  ctx.stroke();
+
+  // --- Layer 4: bottom-right shadow arc (opposite the glint — suggests refraction depth) ---
+  traceBlob(ctx, glass.cx, glass.cy, rx, ry, glassMorph, t);
+  ctx.save();
+  ctx.clip();
+  var shadow = ctx.createRadialGradient(
+    glass.cx + rx * 0.45, glass.cy + ry * 0.45, 0,
+    glass.cx + rx * 0.45, glass.cy + ry * 0.45, rx * 0.9
+  );
+  shadow.addColorStop(0,   'rgba(100, 45, 10, 0.13)');
+  shadow.addColorStop(1,   'rgba(100, 45, 10, 0.00)');
+  ctx.fillStyle = shadow;
+  ctx.fillRect(glass.cx - rx, glass.cy - ry, rx * 2, ry * 2);
+  ctx.restore();
+
+  // --- Layer 5: specular glint arc top-left ---
+  ctx.beginPath();
+  ctx.moveTo(glass.cx - rx * 0.52, glass.cy - ry * 0.48);
+  ctx.bezierCurveTo(
+    glass.cx - rx * 0.30, glass.cy - ry * 0.75,
+    glass.cx + rx * 0.18, glass.cy - ry * 0.68,
+    glass.cx + rx * 0.36, glass.cy - ry * 0.36
+  );
+  ctx.shadowColor = 'rgba(255, 230, 180, 0.55)';
+  ctx.shadowBlur = 8;
+  ctx.strokeStyle = 'rgba(255, 248, 220, 0.68)';
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  ctx.restore();
+}
 
   function drawFrame(ts) {
     if (!document.body.contains(canvas)) {
