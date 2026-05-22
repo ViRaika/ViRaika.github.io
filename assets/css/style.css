@@ -786,7 +786,7 @@ main {
 
 .vr-home {
   display: grid;
-  grid-template-columns: 44fr 56fr;
+  grid-template-columns: 40fr 60fr;
   min-height: calc(100vh - var(--nav-h));
   align-items: center;
   overflow: hidden;
@@ -796,7 +796,7 @@ main {
 .vr-home-left {
   position: relative;
   padding-left: clamp(2rem, 6vw, 6rem);
-  padding-right: 2rem;
+  padding-right: 0;
   transform: translateY(-4vh);
 }
 
@@ -846,6 +846,7 @@ main {
 .vr-home-right {
   position: relative;
   height: calc(100vh - var(--nav-h));
+  margin-left: -60px;
 }
 
 .vr-scene {
@@ -856,10 +857,10 @@ main {
 .vr-base-blob {
   position: absolute;
   top: 50%;
-  left: 52%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: min(54vh, 460px);
-  height: min(54vh, 460px);
+  width: min(68vh, 580px);
+  height: min(68vh, 580px);
   background: transparent;
   border-radius: 62% 38% 51% 49% / 48% 52% 47% 53%;
   opacity: 0;
