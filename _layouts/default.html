@@ -124,19 +124,24 @@
     glass.dataset.orbitReady = 'true';
     if (glassRaf) cancelAnimationFrame(glassRaf);
 
-    var GW = 195, GH = 172;
     var targetAngle = 0, currentAngle = 0, angularVelocity = 0;
     var SPRING = 0.012, DAMPING = 0.88, BASE_SPEED = 0.008;
     var last = null;
 
     function getBlobCenter() {
       var right = document.querySelector('.vr-home-right');
+      var base = document.querySelector('.vr-base-blob');
       if (!right) return { x: 300, y: 300 };
-      var r = right.getBoundingClientRect();
-      var blobW = Math.min(r.height * 0.55, 420);
-      var cx = r.width * 0.5 + blobW * (0.5 - 0.38);
-      var cy = r.height * 0.5;
-      return { x: cx, y: cy };
+      if (!base) {
+        var r = right.getBoundingClientRect();
+        return { x: r.width * 0.52, y: r.height * 0.50 };
+      }
+      var rr = right.getBoundingClientRect();
+      var br = base.getBoundingClientRect();
+      return {
+        x: br.left - rr.left + br.width * 0.5,
+        y: br.top - rr.top + br.height * 0.5
+      };
     }
 
     function orbitRadius(a) {
@@ -160,8 +165,10 @@
 
       var r = orbitRadius(currentAngle);
       var c = getBlobCenter();
-      var x = c.x + r * Math.cos(currentAngle) - GW / 2;
-      var y = c.y + r * Math.sin(currentAngle) - GH / 2;
+      var gw = glass.offsetWidth || 205;
+      var gh = glass.offsetHeight || 185;
+      var x = c.x + r * Math.cos(currentAngle) - gw / 2;
+      var y = c.y + r * Math.sin(currentAngle) - gh / 2;
       glass.style.left = x + 'px';
       glass.style.top = y + 'px';
       glass.style.transform = 'rotate(' + ((currentAngle * 180 / Math.PI) + 90) + 'deg)';
