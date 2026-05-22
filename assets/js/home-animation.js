@@ -9,6 +9,9 @@
   var terrainCtx = terrainCanvas.getContext('2d', { alpha: true });
   var fadeCanvas = document.createElement('canvas');
   var fadeCtx = fadeCanvas.getContext('2d', { alpha: true });
+  // Offscreen buffer for soft-edge blob compositing (fixes hard clip edge under blur)
+  var blobSoftCanvas = document.createElement('canvas');
+  var blobSoftCtx = blobSoftCanvas.getContext('2d', { alpha: true });
 
   var raf = 0;
   var resizeTimer = 0;
@@ -61,9 +64,18 @@
 
   function rebuildCells() {
     cells = [];
-    for (var j = 0; j < GRID; j++) {
-      for (var ii = 0; ii < GRID; ii++) {
-        cells.push({ u0: ii/GRID, v0: j/GRID, u1: (ii+1)/GRID, v1: (j+1)/GRID, depth: ii+j });
+    // PAD extends the grid 4 cells beyond [0,1] on every side.
+    // This ensures terrain fills the full blob even at morph extremes,
+    // and the 128→90 "plain then clipped" pattern holds: outer cells
+    // (u/v < 0 or > 1) have surfaceHeight ≈ 0 so they render as flat
+    // dark base — invisible under the blob's soft edge mask.
+    var PAD = 4;
+    var TOTAL = GRID + PAD * 2;
+    for (var j = 0; j < TOTAL; j++) {
+      for (var ii = 0; ii < TOTAL; ii++) {
+        var u0 = (ii - PAD) / GRID;
+        var v0 = (j  - PAD) / GRID;
+        cells.push({ u0: u0, v0: v0, u1: u0 + 1/GRID, v1: v0 + 1/GRID, depth: ii + j });
       }
     }
     cells.sort(function(a,b){ return a.depth - b.depth; });
@@ -82,10 +94,13 @@
     terrainCanvas.height = canvas.height;
     fadeCanvas.width = canvas.width;
     fadeCanvas.height = canvas.height;
+    blobSoftCanvas.width = canvas.width;
+    blobSoftCanvas.height = canvas.height;
 
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     terrainCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
     fadeCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    blobSoftCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
     rebuildCells();
   }
 
@@ -203,13 +218,15 @@
     fadeCtx.save();
     traceBlob(fadeCtx,base.cx,base.cy,brx,bry,blobMorph,t);
     fadeCtx.clip();
-    var grad=fadeCtx.createRadialGradient(base.cx,base.cy,Math.min(brx,bry)*0.18,base.cx,base.cy,Math.max(brx,bry)*1.02);
-    grad.addColorStop(0,'rgba(255,255,255,1)');
-    grad.addColorStop(0.58,'rgba(255,255,255,0.96)');
-    grad.addColorStop(0.82,'rgba(255,255,255,0.58)');
-    grad.addColorStop(1,'rgba(255,255,255,0)');
+    // Outer radius pushed to 1.18 (was 1.02) so fade finishes outside blob edge.
+    // Inner solid zone extended to 0.70 (was 0.58) — more opaque terrain before fade.
+    var grad=fadeCtx.createRadialGradient(base.cx,base.cy,Math.min(brx,bry)*0.18,base.cx,base.cy,Math.max(brx,bry)*1.18);
+    grad.addColorStop(0,    'rgba(255,255,255,1)');
+    grad.addColorStop(0.70, 'rgba(255,255,255,0.98)');
+    grad.addColorStop(0.88, 'rgba(255,255,255,0.72)');
+    grad.addColorStop(1,    'rgba(255,255,255,0)');
     fadeCtx.fillStyle=grad;
-    fadeCtx.fillRect(base.cx-brx*1.2,base.cy-bry*1.3,brx*2.4,bry*2.6);
+    fadeCtx.fillRect(base.cx-brx*1.3,base.cy-bry*1.4,brx*2.6,bry*2.8);
     fadeCtx.restore();
     terrainCtx.save();
     terrainCtx.globalCompositeOperation='destination-in';
@@ -417,13 +434,38 @@
       ctx.fill();
       ctx.restore();
 
-      // Main blurred terrain (the visible blob)
+      // Main blob body — soft-edge compositing via offscreen canvas.
+      // Drawing blurred terrain into blobSoftCanvas THEN masking with a
+      // radial gradient means the edge feathers in alpha-space, not at a
+      // hard clip boundary. The clip system never touches the blur output.
+      blobSoftCtx.clearRect(0, 0, W, H);
+      // Step 1: draw terrain oversized (1.15×) so blur has room to decay
+      // before hitting the mask — no hard-edge stencil involved.
+      blobSoftCtx.save();
+      blobSoftCtx.filter = 'blur(18px)';
+      blobSoftCtx.globalAlpha = 0.96;
+      blobSoftCtx.drawImage(terrainCanvas, 0, 0, W, H);
+      blobSoftCtx.restore();
+      // Step 2: punch the blob silhouette via destination-in + soft radial mask.
+      // The gradient fades from fully opaque centre to transparent at the true
+      // blob radius — so the blur decays naturally into nothing at the edge
+      // with zero visible hard boundary.
+      blobSoftCtx.save();
+      blobSoftCtx.globalCompositeOperation = 'destination-in';
+      var softMask = blobSoftCtx.createRadialGradient(
+        base.cx, base.cy, brx * 0.30,
+        base.cx, base.cy, brx * 1.08
+      );
+      softMask.addColorStop(0,    'rgba(0,0,0,1)');
+      softMask.addColorStop(0.68, 'rgba(0,0,0,1)');
+      softMask.addColorStop(0.88, 'rgba(0,0,0,0.55)');
+      softMask.addColorStop(1,    'rgba(0,0,0,0)');
+      blobSoftCtx.fillStyle = softMask;
+      blobSoftCtx.fillRect(0, 0, W, H);
+      blobSoftCtx.restore();
+      // Step 3: composite the soft blob onto the main canvas
       ctx.save();
-      traceBlob(ctx, base.cx, base.cy, brx, bry, blobMorph, t);
-      ctx.clip();
-      ctx.filter = 'blur(16px)';
-      ctx.globalAlpha = 0.96;
-      ctx.drawImage(terrainCanvas, 0, 0, W, H);
+      ctx.drawImage(blobSoftCanvas, 0, 0, W, H);
       ctx.restore();
 
       // Darken the area where glass sits (so glass pops over it)
