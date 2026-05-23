@@ -69,7 +69,7 @@
     // and the 128→90 "plain then clipped" pattern holds: outer cells
     // (u/v < 0 or > 1) have surfaceHeight ≈ 0 so they render as flat
     // dark base — invisible under the blob's soft edge mask.
-    var PAD = 20;
+    var PAD = 10;
     var TOTAL = GRID + PAD * 2;
     for (var j = 0; j < TOTAL; j++) {
       for (var ii = 0; ii < TOTAL; ii++) {
@@ -144,23 +144,24 @@
       var h = 0;
       
       for (var ii = 0; ii < peaks.length; ii++) {
-        var p = animatedPeak(peaks[ii], t);
-        
-        // Use distance to the nearest "copy" of the peak (like tiling)
-        var dx = u - p.x;
-        var dy = v - p.y;
-        
-        // Optional: gentle tiling for seamless extension
-        // dx = ((dx + 0.5) % 1) - 0.5;
-        // dy = ((dy + 0.5) % 1) - 0.5;
-        
-        h += p.amp * Math.exp(-(dx*dx + dy*dy) / (2 * p.sig * p.sig));
+          var p = animatedPeak(peaks[ii], t);
+          var dx = u - p.x;
+          var dy = v - p.y;
+          
+          h += p.amp * Math.exp(-(dx*dx + dy*dy) / (2 * p.sig * p.sig));
       }
   
-      // Soft fade at the far edges
-      var edgeFade = Math.exp(-Math.pow(Math.max(0, Math.abs(u-0.5)-0.7), 2) * 8);
-      edgeFade *= Math.exp(-Math.pow(Math.max(0, Math.abs(v-0.5)-0.7), 2) * 8);
+      // Faster edge fade (avoid heavy Math.pow when possible)
+      var du = Math.abs(u - 0.5);
+      var dv = Math.abs(v - 0.5);
+      var edgeFade = 1.0;
       
+      if (du > 0.65 || dv > 0.65) {
+          var fadeX = du > 0.65 ? Math.exp(-Math.pow((du - 0.65) * 6, 2)) : 1;
+          var fadeY = dv > 0.65 ? Math.exp(-Math.pow((dv - 0.65) * 6, 2)) : 1;
+          edgeFade = fadeX * fadeY;
+      }
+  
       return Math.min(h * edgeFade, 1);
   }
 
