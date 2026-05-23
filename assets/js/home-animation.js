@@ -69,7 +69,7 @@
     // and the 128→90 "plain then clipped" pattern holds: outer cells
     // (u/v < 0 or > 1) have surfaceHeight ≈ 0 so they render as flat
     // dark base — invisible under the blob's soft edge mask.
-    var PAD = 4;
+    var PAD = 20;
     var TOTAL = GRID + PAD * 2;
     for (var j = 0; j < TOTAL; j++) {
       for (var ii = 0; ii < TOTAL; ii++) {
@@ -141,13 +141,27 @@
   }
 
   function surfaceHeight(u, v, t) {
-    var h = 0;
-    for (var ii = 0; ii < peaks.length; ii++) {
-      var p = animatedPeak(peaks[ii], t);
-      var dx = u-p.x, dy = v-p.y;
-      h += p.amp * Math.exp(-(dx*dx+dy*dy)/(2*p.sig*p.sig));
-    }
-    return Math.min(h, 1);
+      var h = 0;
+      
+      for (var ii = 0; ii < peaks.length; ii++) {
+        var p = animatedPeak(peaks[ii], t);
+        
+        // Use distance to the nearest "copy" of the peak (like tiling)
+        var dx = u - p.x;
+        var dy = v - p.y;
+        
+        // Optional: gentle tiling for seamless extension
+        // dx = ((dx + 0.5) % 1) - 0.5;
+        // dy = ((dy + 0.5) % 1) - 0.5;
+        
+        h += p.amp * Math.exp(-(dx*dx + dy*dy) / (2 * p.sig * p.sig));
+      }
+  
+      // Soft fade at the far edges
+      var edgeFade = Math.exp(-Math.pow(Math.max(0, Math.abs(u-0.5)-0.7), 2) * 8);
+      edgeFade *= Math.exp(-Math.pow(Math.max(0, Math.abs(v-0.5)-0.7), 2) * 8);
+      
+      return Math.min(h * edgeFade, 1);
   }
 
   function isoFromBase(base) {
