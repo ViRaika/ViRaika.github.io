@@ -69,7 +69,7 @@
     // and the 128→90 "plain then clipped" pattern holds: outer cells
     // (u/v < 0 or > 1) have surfaceHeight ≈ 0 so they render as flat
     // dark base — invisible under the blob's soft edge mask.
-    var PAD = 10;
+    var PAD = 8;
     var TOTAL = GRID + PAD * 2;
     for (var j = 0; j < TOTAL; j++) {
       for (var ii = 0; ii < TOTAL; ii++) {
