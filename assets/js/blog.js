@@ -1,40 +1,41 @@
-// Toggle expand / collapse
+/* ============================================================
+   blog.js — search, sort, tag filter + MathJax re-typeset
+   ============================================================ */
+
+/* ── Toggle expand / collapse ── */
 function toggleBlog(header) {
   var card = header.closest('.blog-card');
   var isExpanded = card.dataset.expanded === 'true';
   card.dataset.expanded = isExpanded ? 'false' : 'true';
+
+  /* Re-typeset math inside this card once it's visible */
+  if (!isExpanded && window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([card]).catch(function(err) {
+      console.warn('MathJax typeset error:', err);
+    });
+  }
 }
 
-// Active share button timeout handle — keyed by slug
+/* ── Share ── */
 var shareTimers = {};
 
 function sharePost(event, slug) {
-  event.stopPropagation(); // don't toggle the card
-
+  event.stopPropagation();
   var url = window.location.origin + window.location.pathname + '#' + slug;
   var clickedBtn = event.currentTarget;
 
-  // Reset every OTHER share button immediately
-  document.querySelectorAll('.blog-share-btn.copied').forEach(function (btn) {
+  document.querySelectorAll('.blog-share-btn.copied').forEach(function(btn) {
     if (btn !== clickedBtn) {
       btn.classList.remove('copied');
       var otherSlug = btn.dataset.slug;
-      if (shareTimers[otherSlug]) {
-        clearTimeout(shareTimers[otherSlug]);
-        delete shareTimers[otherSlug];
-      }
+      if (shareTimers[otherSlug]) { clearTimeout(shareTimers[otherSlug]); delete shareTimers[otherSlug]; }
     }
   });
 
-  // Copy to clipboard
   function onCopied() {
     clickedBtn.classList.add('copied');
-
-    // Clear any existing timer for this button
     if (shareTimers[slug]) clearTimeout(shareTimers[slug]);
-
-    // Auto-reset after 2.2s
-    shareTimers[slug] = setTimeout(function () {
+    shareTimers[slug] = setTimeout(function() {
       clickedBtn.classList.remove('copied');
       delete shareTimers[slug];
     }, 2200);
@@ -43,29 +44,154 @@ function sharePost(event, slug) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(onCopied).catch(onCopied);
   } else {
-    // Fallback for older / non-secure contexts
     var ta = document.createElement('textarea');
     ta.value = url;
     ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); } catch (e) {}
+    try { document.execCommand('copy'); } catch(e) {}
     document.body.removeChild(ta);
     onCopied();
   }
 }
 
-// On page load: if hash present, expand only that post and scroll to it
-(function () {
+/* ── Hash → auto-expand on load ── */
+(function() {
   var hash = window.location.hash.slice(1);
   if (!hash) return;
-
   var target = document.getElementById(hash);
   if (!target) return;
-
   target.dataset.expanded = 'true';
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([target]);
+  setTimeout(function() { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+})();
 
-  setTimeout(function () {
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 150);
+/* ============================================================
+   Search / Sort / Tag system
+   ============================================================ */
+(function() {
+  var currentSort = 'newest';
+  var currentTag  = 'all';
+  var openPanel   = null;
+
+  var posts = Array.from(document.querySelectorAll('.blog-card'));
+
+  /* ── Panel toggle ── */
+  function togglePanel(name) {
+    var panel = document.getElementById('vr-' + name + '-panel');
+    var btn   = document.getElementById('vr-' + name + '-btn');
+
+    if (openPanel === name) {
+      panel.classList.remove('open');
+      btn.classList.remove('active');
+      btn.setAttribute('aria-expanded', 'false');
+      openPanel = null;
+      return;
+    }
+    if (openPanel) {
+      document.getElementById('vr-' + openPanel + '-panel').classList.remove('open');
+      document.getElementById('vr-' + openPanel + '-btn').classList.remove('active');
+      document.getElementById('vr-' + openPanel + '-btn').setAttribute('aria-expanded', 'false');
+    }
+    panel.classList.add('open');
+    btn.classList.add('active');
+    btn.setAttribute('aria-expanded', 'true');
+    openPanel = name;
+  }
+
+  document.getElementById('vr-sort-btn').addEventListener('click', function() { togglePanel('sort'); });
+  document.getElementById('vr-tags-btn').addEventListener('click', function() { togglePanel('tags'); });
+
+  /* ── Sort chips ── */
+  document.querySelectorAll('[data-sort]').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('[data-sort]').forEach(function(c) { c.classList.remove('sort-active'); });
+      chip.classList.add('sort-active');
+      currentSort = chip.dataset.sort;
+      document.getElementById('vr-sort-btn').classList.toggle('has-active', currentSort !== 'newest');
+      apply();
+    });
+  });
+
+  /* ── Tag chips ── */
+  document.querySelectorAll('[data-tag]').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('[data-tag]').forEach(function(c) { c.classList.remove('tag-active'); });
+      chip.classList.add('tag-active');
+      currentTag = chip.dataset.tag;
+      document.getElementById('vr-tags-btn').classList.toggle('has-active', currentTag !== 'all');
+      apply();
+    });
+  });
+
+  /* ── Search input ── */
+  var searchInput = document.getElementById('vr-search-input');
+  var searchClear = document.getElementById('vr-search-clear');
+
+  searchInput.addEventListener('input', function() {
+    searchClear.classList.toggle('visible', this.value.length > 0);
+    apply();
+  });
+
+  searchClear.addEventListener('click', function() {
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    apply();
+  });
+
+  /* ── Active filter pills ── */
+  function renderActivePills() {
+    var container = document.getElementById('vr-active-filters');
+    container.innerHTML = '';
+    if (currentTag !== 'all') {
+      var pill = document.createElement('span');
+      pill.className = 'vr-af-pill';
+      pill.innerHTML = currentTag + ' <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+      pill.addEventListener('click', function() {
+        document.querySelector('[data-tag="all"]').click();
+      });
+      container.appendChild(pill);
+    }
+  }
+
+  /* ── Main apply ── */
+  function apply() {
+    var q = searchInput.value.toLowerCase().trim();
+
+    var visible = posts.filter(function(p) {
+      var tagMatch = currentTag === 'all' || p.dataset.tags.split(' ').indexOf(currentTag) !== -1;
+      var textMatch = !q || p.dataset.title.indexOf(q) !== -1 || p.dataset.tags.indexOf(q) !== -1;
+      return tagMatch && textMatch;
+    });
+
+    visible.sort(function(a, b) {
+      if (currentSort === 'newest') return parseInt(b.dataset.ts) - parseInt(a.dataset.ts);
+      if (currentSort === 'oldest') return parseInt(a.dataset.ts) - parseInt(b.dataset.ts);
+      if (currentSort === 'az')     return a.dataset.title.localeCompare(b.dataset.title);
+      if (currentSort === 'za')     return b.dataset.title.localeCompare(a.dataset.title);
+      return 0;
+    });
+
+    var list = document.querySelector('.page.active');
+    var visSet = new Set(visible);
+
+    /* Re-order visible posts in DOM */
+    var insertBefore = document.getElementById('vr-empty-state');
+    visible.forEach(function(p) { list.insertBefore(p, insertBefore); });
+
+    posts.forEach(function(p) {
+      if (visSet.has(p)) {
+        p.classList.remove('vr-hidden');
+      } else {
+        p.classList.add('vr-hidden');
+      }
+    });
+
+    var c = visible.length;
+    document.getElementById('vr-result-count').textContent = c + ' post' + (c !== 1 ? 's' : '');
+    document.getElementById('vr-empty-state').classList.toggle('visible', c === 0);
+
+    renderActivePills();
+  }
+
 })();
