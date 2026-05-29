@@ -71,7 +71,7 @@ function sharePost(event, slug) {
    ============================================================ */
 (function() {
   var currentSort = 'newest';
-  var currentTag  = 'all';
+  var activeTags = new Set();
   var openPanel   = null;
 
   var posts = Array.from(document.querySelectorAll('.blog-card'));
@@ -114,15 +114,28 @@ function sharePost(event, slug) {
   });
 
   /* ── Tag chips ── */
-  document.querySelectorAll('[data-tag]').forEach(function(chip) {
-    chip.addEventListener('click', function() {
-      document.querySelectorAll('[data-tag]').forEach(function(c) { c.classList.remove('tag-active'); });
-      chip.classList.add('tag-active');
-      currentTag = chip.dataset.tag;
-      document.getElementById('vr-tags-btn').classList.toggle('has-active', currentTag !== 'all');
-      apply();
-    });
-  });
+   document.querySelectorAll('[data-tag]').forEach(function(chip) {
+     chip.addEventListener('click', function() {
+       var tag = chip.dataset.tag;
+       if (tag === 'all') {
+         activeTags.clear();
+         document.querySelectorAll('[data-tag]').forEach(function(c) { c.classList.remove('tag-active'); });
+         chip.classList.add('tag-active');
+       } else {
+         document.querySelector('[data-tag="all"]').classList.remove('tag-active');
+         if (activeTags.has(tag)) {
+           activeTags.delete(tag);
+           chip.classList.remove('tag-active');
+           if (activeTags.size === 0) document.querySelector('[data-tag="all"]').classList.add('tag-active');
+         } else {
+           activeTags.add(tag);
+           chip.classList.add('tag-active');
+         }
+       }
+       document.getElementById('vr-tags-btn').classList.toggle('has-active', activeTags.size > 0);
+       apply();
+     });
+   });
 
   /* ── Search input ── */
   var searchInput = document.getElementById('vr-search-input');
@@ -140,26 +153,32 @@ function sharePost(event, slug) {
   });
 
   /* ── Active filter pills ── */
-  function renderActivePills() {
-    var container = document.getElementById('vr-active-filters');
-    container.innerHTML = '';
-    if (currentTag !== 'all') {
-      var pill = document.createElement('span');
-      pill.className = 'vr-af-pill';
-      pill.innerHTML = currentTag + ' <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>';
-      pill.addEventListener('click', function() {
-        document.querySelector('[data-tag="all"]').click();
-      });
-      container.appendChild(pill);
-    }
-  }
+   function renderActivePills() {
+     var container = document.getElementById('vr-active-filters');
+     container.innerHTML = '';
+     activeTags.forEach(function(tag) {
+       var pill = document.createElement('span');
+       pill.className = 'vr-af-pill';
+       pill.innerHTML = tag + ' <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+       pill.addEventListener('click', function() {
+         activeTags.delete(tag);
+         var chip = document.querySelector('[data-tag="' + tag + '"]');
+         if (chip) chip.classList.remove('tag-active');
+         if (activeTags.size === 0) document.querySelector('[data-tag="all"]').classList.add('tag-active');
+         document.getElementById('vr-tags-btn').classList.toggle('has-active', activeTags.size > 0);
+         apply();
+       });
+       container.appendChild(pill);
+     });
+   }
 
   /* ── Main apply ── */
   function apply() {
     var q = searchInput.value.toLowerCase().trim();
 
     var visible = posts.filter(function(p) {
-      var tagMatch = currentTag === 'all' || p.dataset.tags.split(' ').indexOf(currentTag) !== -1;
+      var postTags = JSON.parse(p.dataset.tags);
+      var tagMatch = activeTags.size === 0 || postTags.some(function(t) { return activeTags.has(t); });
       var textMatch = !q || p.dataset.title.indexOf(q) !== -1 || p.dataset.tags.indexOf(q) !== -1;
       return tagMatch && textMatch;
     });
