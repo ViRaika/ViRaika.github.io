@@ -959,7 +959,7 @@ main {
    ============================================ */
 
 .search-system {
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 /* Top row: search bar + two buttons */
@@ -1140,7 +1140,7 @@ main {
   align-items: center;
   justify-content: space-between;
   margin-top: 0.9rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 .vr-result-count {
   font-family: var(--font-mono);
@@ -1195,4 +1195,3 @@ main {
   margin: 1.25rem 0 !important;
   display: block !important;
 }
-
