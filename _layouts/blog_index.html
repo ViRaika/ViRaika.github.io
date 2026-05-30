@@ -73,7 +73,7 @@ layout: default
     class="blog-card"
     id="{{ post.slug }}"
     data-expanded="false"
-    data-tags='{{ post.tags | join: "," | downcase | split: "," | jsonify }}'
+    data-tags='{{ post.tags | map: "downcase" | jsonify }}'
     data-title="{{ post.title | downcase }}"
     data-ts="{{ post.date | date: '%Y%m%d' }}"
   >
