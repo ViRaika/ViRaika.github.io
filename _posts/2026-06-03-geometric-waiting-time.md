@@ -16,7 +16,7 @@ Well naturally the question is,
 
 Which sounded suspiciously like a waiting-time problem.
 
-So naturally, I tried to model it.
+Sooooo , I tried to model it.
 
 ---
 
