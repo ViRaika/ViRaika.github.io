@@ -2,7 +2,7 @@
 layout: post
 title: "When Will Luck Finally Arrive?"
 date: 2026-06-03
-tags: [Probability, Stochastic Processes]
+tags: [Probability]
 excerpt: "A friend said they had never experienced a lucky day. Naturally, I tried to model it."
 ---
 
