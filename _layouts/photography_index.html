@@ -18,6 +18,7 @@ layout: default
           <img
             src="{{ img_path }}"
             alt="{% if photo.caption %}{{ photo.caption }}{% else %}photograph{% endif %}"
+            title="{% if photo.credit %}photo by {{ photo.credit }}{% endif %}"
             loading="lazy"
           />
           {% if photo.caption %}
