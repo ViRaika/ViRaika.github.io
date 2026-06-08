@@ -3,8 +3,8 @@
 # caption is optional — remove the line entirely if you don't want one
 # order controls display order (lower = first)
 
-- file: 1.png
-  caption: ex nihilo
+- file: 1.JPG
+  caption: per aspera
   order: 1
 
 # Example entries — replace with your own files:
