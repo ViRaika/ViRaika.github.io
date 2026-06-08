@@ -9,6 +9,10 @@
 - file: 2.jpg
   caption: Lodhi garden, New Delhi
   order: 2
+- file: 3.jpeg
+  caption: paddar, jammu
+  credit: "@rockxart80"
+  order: 3
 # Example entries — replace with your own files:
 # - file: jodhpur.jpg
 #   caption: jodhpur, march
