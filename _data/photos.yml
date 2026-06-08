@@ -1,0 +1,21 @@
+# Photography data file
+# Add an entry for each photo you place in assets/images/photography/
+# caption is optional — remove the line entirely if you don't want one
+# order controls display order (lower = first)
+
+- file: 1.png
+  caption: ex nihilo
+  order: 1
+
+# Example entries — replace with your own files:
+# - file: jodhpur.jpg
+#   caption: jodhpur, march
+#   order: 2
+#
+# - file: monsoon.jpg
+#   caption: delhi in july
+#   order: 3
+#
+# - file: fog.jpg
+#   order: 4
+#   (no caption — still works fine)

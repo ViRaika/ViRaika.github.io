@@ -1,0 +1,41 @@
+---
+layout: default
+---
+<section class="page frames-page active">
+  <div class="page-header">
+    <h2 class="section-title">Frames</h2>
+    <p class="section-sub">// light, stillness, and things worth seeing twice</p>
+  </div>
+
+  {% assign photos = site.data.photos | sort: "order" %}
+
+  {% if photos.size > 0 %}
+  <div class="frames-grid">
+    {% for photo in photos %}
+      {% assign img_path = '/assets/images/photography/' | append: photo.file | relative_url %}
+      <figure class="frame-item">
+        <div class="frame-img-wrap">
+          <img
+            src="{{ img_path }}"
+            alt="{% if photo.caption %}{{ photo.caption }}{% else %}photograph{% endif %}"
+            loading="lazy"
+          />
+          {% if photo.caption %}
+          <div class="frame-overlay">
+            <span class="frame-caption">{{ photo.caption }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </figure>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="wip-container">
+    <p class="wip-code">// status: loading film</p>
+    <h2 class="section-title">No photos yet</h2>
+    <p class="wip-sub">Add images to <code>assets/images/photography/</code> and list them in <code>_data/photos.yml</code>.</p>
+  </div>
+  {% endif %}
+
+</section>

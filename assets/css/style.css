@@ -1195,3 +1195,142 @@ main {
   margin: 1.25rem 0 !important;
   display: block !important;
 }
+
+/* ============================================
+   FRAMES — Photography Gallery
+   Golden ratio split (φ = 1.618)
+   Fibonacci spacing: 8, 13, 21, 34px
+   ============================================ */
+
+.frames-page {
+  max-width: 980px;
+}
+
+/* Golden ratio grid:
+   Left column = 61.8%, Right = 38.2%
+   Implemented as CSS columns masonry
+   so it degrades gracefully at any count */
+.frames-grid {
+  columns: 2;
+  column-gap: 21px; /* fib: 21 */
+  margin-top: 0.5rem;
+}
+
+/* Dominant column naturally fills ~61.8%
+   because tall images gravitate left in CSS columns */
+
+.frame-item {
+  break-inside: avoid;
+  margin-bottom: 21px; /* fib: 21 */
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.frame-img-wrap {
+  position: relative;
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.frame-img-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  filter: saturate(0.92) brightness(0.97);
+}
+
+.frame-item:hover .frame-img-wrap img {
+  transform: scale(1.02);
+  filter: saturate(1.05) brightness(1.0);
+}
+
+/* Caption overlay — slides up from bottom */
+.frame-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 34px 13px 13px; /* fib: 34 top fade space, 13 sides/bottom */
+  background: linear-gradient(
+    to top,
+    rgba(42, 33, 24, 0.62) 0%,
+    rgba(42, 33, 24, 0.0) 100%
+  );
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  border-radius: 0 0 6px 6px;
+}
+
+.frame-item:hover .frame-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.frame-caption {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: rgba(253, 250, 244, 0.88);
+  letter-spacing: 0.06em;
+  display: block;
+  line-height: 1.4;
+}
+
+/* Staggered fade-in on load */
+.frame-item {
+  animation: frameReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.frame-item:nth-child(1)  { animation-delay: 0.05s; }
+.frame-item:nth-child(2)  { animation-delay: 0.10s; }
+.frame-item:nth-child(3)  { animation-delay: 0.15s; }
+.frame-item:nth-child(4)  { animation-delay: 0.20s; }
+.frame-item:nth-child(5)  { animation-delay: 0.25s; }
+.frame-item:nth-child(6)  { animation-delay: 0.30s; }
+.frame-item:nth-child(7)  { animation-delay: 0.35s; }
+.frame-item:nth-child(8)  { animation-delay: 0.38s; }
+.frame-item:nth-child(9)  { animation-delay: 0.40s; }
+.frame-item:nth-child(n+10) { animation-delay: 0.42s; }
+
+@keyframes frameReveal {
+  from {
+    opacity: 0;
+    transform: translateY(13px); /* fib: 13 */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Tablet: keep 2 cols but tighten spacing ── */
+@media (max-width: 720px) {
+  .frames-grid {
+    columns: 2;
+    column-gap: 13px; /* fib: 13 */
+  }
+  .frame-item {
+    margin-bottom: 13px;
+  }
+}
+
+/* ── Mobile: single column, full bleed ── */
+@media (max-width: 480px) {
+  .frames-grid {
+    columns: 1;
+    column-gap: 0;
+  }
+  .frame-item {
+    margin-bottom: 13px;
+  }
+  .frame-overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
