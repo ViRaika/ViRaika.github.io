@@ -6,7 +6,9 @@
 - file: 1.JPG
   caption: per aspera
   order: 1
-
+- file: 2.jpg
+  caption: Lodhi garden, New Delhi
+  order: 2
 # Example entries — replace with your own files:
 # - file: jodhpur.jpg
 #   caption: jodhpur, march
