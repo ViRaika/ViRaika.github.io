@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Blitzstein experience (Lec 2)"
+title: "Blitzstein experience"
 date: 2026-05-10
 tags: [Probability]
 excerpt: "I encountered a probability problem that looked straightforward at first, but the deeper I went, the more I realized I was mixing up conditional reasoning, independence, and counting logic."
