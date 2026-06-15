@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "Blitzstein experience (Lec 9) — Hypergeometric Sampling and Why Quality Control Gets Expensive"
+title: "Hypergeometric Sampling and Why Quality Control Gets Expensive"
 date: 2026-05-18
-tags: [Probability, Reliability Engineering]
+tags: [Probability, Quality Control]
 excerpt: "I thought inspecting 25 parts out of 500 sounded pretty reasonable. Hypergeometric distributions politely informed me that reality disagrees."
 ---
 
