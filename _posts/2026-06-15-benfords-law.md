@@ -54,7 +54,7 @@ $$
 which is around
 
 $$
-11.11%
+11.11\%
 $$
 
 Seemed perfectly reasonable.
@@ -75,10 +75,12 @@ Welllll,
 
 I wrote a quick pandas script because confidence should always be tested before becoming embarrassing.
 
+Pulled the population data from [Wikipedia's country population list](https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population) because at this point I needed evidence.
+
 And the answer came out to around:
 
 $$
-30.96%
+30.96\%
 $$
 
 !!?!
@@ -103,8 +105,7 @@ The official distribution looked like this:
 
 $$
 P(D=d)
-======
-
+=
 \log_{10}
 \left(
 \frac{d+1}{d}
@@ -114,15 +115,14 @@ $$
 for
 
 $$
-d \in {1,2,\dots,9}
+d \in \{1,2,\dots,9\}
 $$
 
 Which immediately gives
 
 $$
 P(D=1)
-======
-
+=
 \log_{10}(2)
 \approx 0.301
 $$
@@ -165,7 +165,7 @@ $$
 1 \le X < 10
 $$
 
-So all the "first digit information" is secretly living inside (X).
+So all the "first digit information" is secretly living inside \(X\).
 
 And then came this PDF:
 
@@ -196,7 +196,6 @@ We just normalize:
 $$
 1
 =
-
 \int_1^{10}
 \frac{c}{x}
 dx
@@ -247,7 +246,7 @@ $$
 Y=aX
 $$
 
-for some scaling factor (a>0).
+for some scaling factor \(a>0\).
 
 We want the distribution to keep looking the same.
 
@@ -283,8 +282,7 @@ Using change of variables:
 
 $$
 f_Y(y)
-======
-
+=
 f_X(y/a)\frac{1}{a}
 $$
 
@@ -300,8 +298,7 @@ $$
 
 which becomes
 
-# $$
-
+$$
 a^{p-1}
 \frac{1}{y^p}
 $$
@@ -316,7 +313,7 @@ $$
 
 must disappear.
 
-For *every* value of (a).
+For *every* value of \(a\).
 
 Which basically forces:
 
@@ -342,14 +339,13 @@ And once you accept
 
 $$
 f(x)
-====
-
+=
 \frac{1}{x\ln(10)}
 $$
 
 everything falls out beautifully.
 
-The first digit is (d) whenever
+The first digit is \(d\) whenever
 
 $$
 d\le X<d+1
@@ -359,8 +355,7 @@ So:
 
 $$
 P(D=d)
-======
-
+=
 \int_d^{d+1}
 \frac{1}{x\ln(10)}
 dx
@@ -368,8 +363,7 @@ $$
 
 which becomes
 
-# $$
-
+$$
 \log_{10}
 \left(
 \frac{d+1}{d}
@@ -386,7 +380,7 @@ Explained.
 
 The funny thing is, I started this problem thinking:
 
-> "Obviously (1/9)."
+> "Obviously \(\frac{1}{9}\)."
 
 Completely confident.
 
