@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Blitzstein experience (Lec 7) — Gambler's Ruin"
+title: "Gambler's Ruin :("
 date: 2026-05-16
 tags: [Probability, Linear Algebra]
 excerpt: "I started with a simple gambler's ruin problem expecting probability tricks. Somehow I ended up rediscovering eigenvectors, matrix diagonalization, and why exponentials naturally appear in difference equations."
@@ -14,7 +14,7 @@ One of them eventually gets destroyed.
 
 Classic.
 
-The setup is simple:
+The setup:
 
 - Gambler A starts with $i$ dollars.
 - Gambler B starts with $n-i$ dollars.
