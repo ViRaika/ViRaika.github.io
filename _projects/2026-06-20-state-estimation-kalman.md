@@ -6,7 +6,7 @@ tags: [Estimation, Linear Algebra, Probability]
 excerpt: "Deriving the optimal fusion of dead reckoning and a noisy measurement from variance minimization alone — no Kalman filtering or control theory assumed, and it turns out to have the exact shape of a 1D Kalman gain."
 github: https://github.com/ViRaika/state-estimation-kalman
 status: complete
-# cover: /assets/images/projects/kalman/cover.png   # uncomment once you add a cover image (see notes at bottom)
+cover: /assets/images/projects/kalman/cover.png
 ---
 
 Dead reckoning vs. optimal estimation, derived without assuming any prior knowledge of control theory, signal processing, or Bayesian filtering , built entirely from **Strang Linear Algebra** and **Stat110 Probability**.
