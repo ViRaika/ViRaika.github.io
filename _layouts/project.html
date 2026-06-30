@@ -1,0 +1,28 @@
+---
+layout: default
+---
+<section class="page active">
+  <div class="page-header">
+    <a href="{{ '/projects/' | relative_url }}" class="back-link">← Projects</a>
+    <div class="blog-card-meta-row" style="margin-top:1rem">
+      {% if page.tags %}
+        {% for tag in page.tags %}<span class="blog-tag">{{ tag }}</span>{% endfor %}
+      {% endif %}
+      <span class="blog-date">{{ page.date | date: "%b %Y" }}</span>
+      {% if page.status %}<span class="project-status status-{{ page.status }}">{{ page.status | replace: '-', ' ' }}</span>{% endif %}
+    </div>
+    <h1 class="section-title" style="margin-top:0.75rem">{{ page.title }}</h1>
+    <div class="project-links">
+      {% if page.github %}<a href="{{ page.github }}" target="_blank" rel="noopener" class="project-link-pill">GitHub →</a>{% endif %}
+      {% if page.demo %}<a href="{{ page.demo }}" target="_blank" rel="noopener" class="project-link-pill">Live demo →</a>{% endif %}
+    </div>
+  </div>
+  {% if page.cover %}
+  <div class="project-cover project-cover-full">
+    <img src="{{ page.cover | relative_url }}" alt="{{ page.title }}">
+  </div>
+  {% endif %}
+  <div class="blog-content" style="display:block;padding:0;border:none">
+    {{ content }}
+  </div>
+</section>

@@ -1,0 +1,151 @@
+---
+layout: default
+---
+<section class="page active">
+  <div class="page-header">
+    <h2 class="section-title">Projects</h2>
+    <p class="section-sub">// ML, aerospace systems, and things built from first principles</p>
+  </div>
+
+  <!-- ── Search system ── -->
+  <div class="search-system">
+
+    <div class="search-row">
+      <div class="search-bar" id="vr-search-bar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="vr-search-input" type="text" placeholder="search projects…" autocomplete="off" aria-label="Search projects">
+        <button class="search-clear" id="vr-search-clear" aria-label="Clear search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <button class="panel-btn" id="vr-sort-btn" aria-expanded="false">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+        sort
+        <svg class="vr-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="vr-dot"></span>
+      </button>
+
+      <button class="panel-btn" id="vr-tags-btn" aria-expanded="false">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        tags
+        <svg class="vr-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="vr-dot"></span>
+      </button>
+    </div>
+
+    <div class="vr-panel-wrap" id="vr-sort-panel">
+      <div class="vr-panel-inner">
+        <div class="vr-panel-row">
+          <span class="vr-panel-label">sort</span>
+          <span class="vr-chip sort-active" data-sort="newest">newest first</span>
+          <span class="vr-chip" data-sort="oldest">oldest first</span>
+          <span class="vr-chip" data-sort="az">a → z</span>
+          <span class="vr-chip" data-sort="za">z → a</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="vr-panel-wrap" id="vr-tags-panel">
+      <div class="vr-panel-inner">
+        <div class="vr-panel-row">
+          <span class="vr-chip tag-active" data-tag="all">all</span>
+          {% assign all_tags = site.projects | map: 'tags' | flatten | uniq | sort %}
+          {% for tag in all_tags %}
+            <span class="vr-chip" data-tag="{{ tag | downcase }}">{{ tag | downcase }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="vr-result-meta" id="vr-result-meta">
+      <span class="vr-result-count" id="vr-result-count">{{ site.projects.size }} project{% if site.projects.size != 1 %}s{% endif %}</span>
+      <div class="vr-active-filters" id="vr-active-filters"></div>
+    </div>
+
+  </div>
+  <!-- /search system -->
+
+  {% assign sorted_projects = site.projects | sort: 'date' | reverse %}
+  {% for project in sorted_projects %}
+  <article
+    class="blog-card project-card"
+    id="{{ project.slug }}"
+    data-expanded="false"
+    data-tags='{{ project.tags | join: "," | downcase | split: "," | jsonify }}'
+    data-title="{{ project.title | downcase }}"
+    data-ts="{{ project.date | date: '%Y%m%d' }}"
+  >
+    <div class="blog-card-header" onclick="toggleProject(this)">
+
+      {% if project.cover %}
+      <div class="project-cover">
+        <img src="{{ project.cover | relative_url }}" alt="{{ project.title }}" loading="lazy">
+        {% if project.status %}<span class="project-status status-{{ project.status }}">{{ project.status | replace: '-', ' ' }}</span>{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="blog-card-meta-row">
+        {% if project.tags %}
+          {% for tag in project.tags %}
+            <span class="blog-tag">{{ tag }}</span>
+          {% endfor %}
+        {% endif %}
+        <span class="blog-date">{{ project.date | date: "%b %Y" }}</span>
+        {% unless project.cover %}{% if project.status %}<span class="project-status status-{{ project.status }}">{{ project.status | replace: '-', ' ' }}</span>{% endif %}{% endunless %}
+      </div>
+      <div class="blog-card-title-row">
+        <h2 class="blog-title">{{ project.title }}</h2>
+        <div class="blog-card-actions">
+          {% if project.github %}
+          <a
+            class="project-github-btn"
+            href="{{ project.github }}"
+            target="_blank"
+            rel="noopener"
+            onclick="event.stopPropagation()"
+            aria-label="View on GitHub"
+            title="View source on GitHub"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 .5C5.73.5.98 5.24.98 11.52c0 5.02 3.26 9.28 7.78 10.78.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.1-3.16.69-3.83-1.34-3.83-1.34-.52-1.31-1.26-1.66-1.26-1.66-1.03-.7.08-.69.08-.69 1.14.08 1.74 1.17 1.74 1.17 1.01 1.74 2.65 1.24 3.3.95.1-.73.4-1.24.72-1.52-2.52-.29-5.17-1.26-5.17-5.6 0-1.24.44-2.25 1.17-3.04-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.14 1.16a10.8 10.8 0 0 1 5.72 0c2.18-1.47 3.14-1.16 3.14-1.16.62 1.57.23 2.73.11 3.02.73.79 1.17 1.8 1.17 3.04 0 4.35-2.66 5.31-5.19 5.59.41.35.77 1.04.77 2.1 0 1.52-.01 2.74-.01 3.11 0 .3.2.66.79.55 4.51-1.5 7.77-5.76 7.77-10.78C23.02 5.24 18.27.5 12 .5z"/></svg>
+          </a>
+          {% endif %}
+          {% if project.demo %}
+          <a
+            class="project-demo-btn"
+            href="{{ project.demo }}"
+            target="_blank"
+            rel="noopener"
+            onclick="event.stopPropagation()"
+            aria-label="View live demo"
+            title="View live demo"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+          {% endif %}
+          <button class="blog-toggle-btn" aria-label="Toggle project">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="blog-preview">{{ project.excerpt }}</p>
+    </div>
+    <div class="blog-content">
+      {{ project.content }}
+    </div>
+  </article>
+  {% endfor %}
+
+  {% if site.projects.size == 0 %}
+  <div class="wip-container">
+    <p class="wip-code">// status: building</p>
+    <h2 class="section-title">Projects Coming Soon</h2>
+    <p class="wip-sub">Add markdown files to the <code>_projects/</code> folder to get started.</p>
+  </div>
+  {% endif %}
+
+  <div class="vr-empty-state" id="vr-empty-state">// no projects match</div>
+
+</section>

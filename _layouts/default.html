@@ -61,11 +61,15 @@
 <script src="{{ '/assets/js/blog.js' | relative_url }}"></script>
 {% endif %}
 
+{% if page.layout == 'projects_index' %}
+<script src="{{ '/assets/js/projects.js' | relative_url }}"></script>
+{% endif %}
+
 <script>
 (function () {
   var cache = {};
   var transitionMs = 560;
-  var navOrder = ['/', '/blog', '/projects', '/contact', '/resume'];
+  var navOrder = ['/', '/blog', '/frames', '/projects', '/contact', '/resume'];
   var glassRaf = null;
   var currentUrl = window.location.href;
 
@@ -99,6 +103,7 @@
   function navIndex(url) {
     var path = norm(url);
     if (path.indexOf('/blog') === 0) return 1;
+    if (path.indexOf('/projects') === 0) return 3;
     for (var i = 0; i < navOrder.length; i++) {
       if (path === navOrder[i]) return i;
     }
@@ -198,6 +203,7 @@
   function loadPageScript(url) {
     var isHome = norm(url) === '/';
     var isBlog = norm(url).indexOf('/blog') === 0;
+    var isProjectsIndex = norm(url) === '/projects';
     if (isHome) {
       var h = document.createElement('script');
       h.src = '{{ "/assets/js/home-animation.js" | relative_url }}?t=' + Date.now();
@@ -209,6 +215,12 @@
       b.src = '{{ "/assets/js/blog.js" | relative_url }}?t=' + Date.now();
       b.dataset.pageScript = 'blog';
       document.body.appendChild(b);
+    }
+    if (isProjectsIndex) {
+      var p = document.createElement('script');
+      p.src = '{{ "/assets/js/projects.js" | relative_url }}?t=' + Date.now();
+      p.dataset.pageScript = 'projects';
+      document.body.appendChild(p);
     }
   }
 

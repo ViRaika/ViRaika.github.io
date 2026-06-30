@@ -5,6 +5,11 @@ baseurl: ""
 
 permalink: /blog/:slug/
 
+collections:
+  projects:
+    output: true
+    permalink: /projects/:slug/
+
 markdown: kramdown
 kramdown:
   math_engine: mathjax

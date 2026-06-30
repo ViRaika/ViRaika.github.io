@@ -1334,3 +1334,92 @@ main {
     transform: translateY(0);
   }
 }
+
+/* ============================================================
+   Projects — cover image, status badge, github/demo links
+   ============================================================ */
+.project-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: var(--accent-soft);
+}
+
+.project-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.project-cover-full {
+  aspect-ratio: 16 / 7;
+  margin-bottom: 2rem;
+}
+
+.project-status {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  text-transform: capitalize;
+}
+
+.project-cover .project-status {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: rgba(42, 33, 24, 0.72);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.status-complete { background: rgba(94, 124, 94, 0.14); color: var(--accent2); border: 1px solid rgba(94, 124, 94, 0.3); }
+.status-in-progress { background: rgba(192, 82, 42, 0.12); color: var(--accent); border: 1px solid rgba(192, 82, 42, 0.28); }
+.status-archived { background: rgba(176, 160, 138, 0.18); color: var(--faint); border: 1px solid rgba(176, 160, 138, 0.32); }
+
+.project-github-btn,
+.project-demo-btn {
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.project-github-btn:hover,
+.project-demo-btn:hover {
+  color: var(--accent);
+}
+
+.project-links {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.project-link-pill {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 0.4rem 0.9rem;
+  color: var(--text);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.project-link-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .project-cover { aspect-ratio: 16 / 10; }
+}
